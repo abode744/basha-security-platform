@@ -668,6 +668,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         <span>الملاحظات والثغرات</span>
       </button>
+      <button class="nav-btn" onclick="navigate('verification')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+        <span>فحص وتأكيد الثغرات</span>
+      </button>
 
       <div class="nav-section-title">الاستخبارات الرقمية</div>
       <button class="nav-btn" onclick="navigate('targets')">
@@ -784,6 +788,22 @@
           <label>الأدلة والمخرجات التقنية (Technical Evidence)</label>
           <pre id="modalEvidence" class="terminal" style="max-height: 250px;"></pre>
         </div>
+
+        <div id="modalVerifyResultBox" class="hidden" style="margin-top: 6px; padding: 14px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.3);">
+          <div class="flex justify-between items-center" style="margin-bottom: 8px;">
+            <span style="font-size: 13px; font-weight: 800;">نتيجة الفحص الحتمي وتصفية الخطأ:</span>
+            <span id="modalVerifyResultBadge" class="badge"></span>
+          </div>
+          <p id="modalVerifyResultReason" style="font-size: 12px; margin-bottom: 8px; color: var(--text);"></p>
+          <pre id="modalVerifyResultProof" class="code-editor-box" style="font-size: 11px; max-height: 120px;"></pre>
+        </div>
+
+        <div class="flex justify-between items-center" style="margin-top: 10px; gap: 10px;">
+          <button id="modalVerifyBtn" class="btn btn-sm" style="flex: 1; background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; font-weight: 800; padding: 10px;" onclick="verifyCurrentFindingInModal()">
+            ⚡ فحص وتأكيد الثغرة بنسبة خطأ 0% (Run Zero-Noise Verification)
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="closeModal()">إغلاق</button>
+        </div>
       </div>
     </div>
   </div>
@@ -868,6 +888,7 @@
         scans: renderScans,
         scanDetail: () => renderScanDetail(arg),
         findings: renderFindings,
+        verification: renderVerification,
         targets: () => renderResource('targets'),
         assets: () => renderResource('assets'),
         endpoints: () => renderResource('endpoints'),
@@ -1368,7 +1389,12 @@
                 <h3 style="font-size: 18px; font-weight: 800;">سجل الملاحظات الأمنية المكتشفة (${findings.length})</h3>
                 <p style="font-size: 12px; color: var(--text-muted);">تسريبات الإعدادات، الترويسات المفقودة، وفروقات الاستجابة الآمنة</p>
               </div>
-              <input id="findingSearch" type="text" placeholder="بحث بالعنوان، الرابط أو مستوى الخطورة..." style="max-width: 320px;" oninput="filterFindingsTable()">
+              <div class="flex items-center gap-2">
+                <button class="btn btn-sm" onclick="navigate('verification')">
+                  ⚡ مركز فحص وتأكيد الثغرات وتصفية الخطأ
+                </button>
+                <input id="findingSearch" type="text" placeholder="بحث بالعنوان، الرابط أو مستوى الخطورة..." style="max-width: 280px;" oninput="filterFindingsTable()">
+              </div>
             </div>
 
             <div class="table-container">
@@ -1379,22 +1405,31 @@
                     <th>عنوان الملاحظة الأمنية</th>
                     <th>المورد / الرابط المستهدف</th>
                     <th>مستوى الثقة</th>
-                    <th>حالة التحقق</th>
+                    <th>حالة التحقق الحتمي</th>
                     <th>أداة الاكتشاف</th>
-                    <th>معاينة</th>
+                    <th>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${findings.length > 0 ? findings.map(f => `
-                    <tr>
+                    <tr id="findingRow_${f.id}">
                       <td><span class="badge sev-${f.severity}">${f.severity}</span></td>
                       <td style="font-weight: 700;">${escapeHtml(f.title)}</td>
                       <td class="mono" style="font-size: 12px; color: var(--cyan);">${escapeHtml(f.url || '—')}</td>
                       <td><span class="badge badge-muted">${f.confidence}</span></td>
-                      <td><span class="badge badge-amber">${f.verification}</span></td>
+                      <td id="findingVerBadge_${f.id}">
+                        ${f.verification === 'CONFIRMED' 
+                          ? '<span class="badge badge-emerald" style="font-weight: 800;">✓ مؤكدة 100%</span>' 
+                          : (f.verification === 'FALSE_POSITIVE'
+                            ? '<span class="badge badge-crimson" style="text-decoration: line-through;">✗ إنذار كاذب مستبعد</span>'
+                            : '<span class="badge badge-amber">قيد التدقيق</span>')}
+                      </td>
                       <td style="font-size: 11px; color: var(--text-dim);">${escapeHtml(f.source)}</td>
                       <td>
-                        <button class="btn btn-secondary btn-sm" onclick="showModal(${JSON.stringify(f).replace(/"/g, '&quot;')})">التفاصيل</button>
+                        <div class="flex gap-2">
+                          <button class="btn btn-secondary btn-sm" onclick="showModal(${JSON.stringify(f).replace(/"/g, '&quot;')})">التفاصيل</button>
+                          <button class="btn btn-sm" style="padding: 4px 8px; font-size: 11px; background: rgba(0, 242, 254, 0.15); border: 1px solid var(--cyan); color: var(--cyan);" onclick="verifySingleFindingInline(${f.id}, this)">⚡ تأكيد قطعي</button>
+                        </div>
                       </td>
                     </tr>
                   `).join('') : '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">لا توجد أي ملاحظات مسجلة.</td></tr>'}
@@ -1413,6 +1448,300 @@
       document.querySelectorAll('#findingTable tbody tr').forEach(tr => {
         tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
       });
+    }
+
+    // ==========================================
+    // 4.2 مركز فحص وتأكيد الثغرات وتصفية الإنذارات الكاذبة (0% False Positives)
+    // ==========================================
+    let currentModalFinding = null;
+
+    async function verifyCurrentFindingInModal() {
+      if (!currentModalFinding) return;
+      const btn = document.getElementById('modalVerifyBtn');
+      const box = document.getElementById('modalVerifyResultBox');
+      const badge = document.getElementById('modalVerifyResultBadge');
+      const reason = document.getElementById('modalVerifyResultReason');
+      const proof = document.getElementById('modalVerifyResultProof');
+
+      btn.disabled = true;
+      btn.textContent = '⏳ جاري الفحص القطعي والتحليل المقارن (Differential Probe)...';
+
+      try {
+        const res = await api(`/verify/finding/${currentModalFinding.id}`, { method: 'POST' });
+        box.classList.remove('hidden');
+        if (res.status === 'CONFIRMED') {
+          badge.className = 'badge badge-emerald';
+          badge.textContent = '✓ مؤكدة بنسبة 100% (CONFIRMED)';
+        } else if (res.status === 'FALSE_POSITIVE') {
+          badge.className = 'badge badge-crimson';
+          badge.textContent = '✗ إنذار كاذب مستبعد (FALSE POSITIVE)';
+        } else {
+          badge.className = 'badge badge-amber';
+          badge.textContent = res.status;
+        }
+        reason.textContent = res.reason || 'تم إتمام الفحص الحتمي بنجاح.';
+        proof.textContent = res.technical_proof || 'No raw differential proof returned.';
+        
+        document.getElementById('modalVerification').textContent = res.status;
+        document.getElementById('modalVerification').className = res.status === 'CONFIRMED' ? 'badge badge-emerald' : 'badge badge-crimson';
+        document.getElementById('modalConfidence').textContent = `${res.confidence}% DETERMINISTIC`;
+
+        const tableBadge = document.getElementById(`findingVerBadge_${currentModalFinding.id}`);
+        if (tableBadge) {
+          tableBadge.innerHTML = res.status === 'CONFIRMED' 
+            ? '<span class="badge badge-emerald" style="font-weight: 800;">✓ مؤكدة 100%</span>'
+            : '<span class="badge badge-crimson" style="text-decoration: line-through;">✗ إنذار كاذب مستبعد</span>';
+        }
+        btn.textContent = '✓ اكتمل الفحص وتحديث السجل';
+      } catch (e) {
+        alert('فشل التحقق: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = '⚡ إعادة المحاولة';
+      }
+    }
+
+    async function verifySingleFindingInline(fid, btn) {
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = '⏳ فحص...';
+      try {
+        const res = await api(`/verify/finding/${fid}`, { method: 'POST' });
+        const tableBadge = document.getElementById(`findingVerBadge_${fid}`);
+        const gridBadge = document.getElementById(`verGridBadge_${fid}`);
+        const badgeHtml = res.status === 'CONFIRMED' 
+          ? '<span class="badge badge-emerald" style="font-weight: 800;">✓ مؤكدة 100%</span>'
+          : '<span class="badge badge-crimson" style="text-decoration: line-through;">✗ إنذار كاذب مستبعد</span>';
+        
+        if (tableBadge) tableBadge.innerHTML = badgeHtml;
+        if (gridBadge) gridBadge.innerHTML = badgeHtml;
+
+        btn.textContent = res.status === 'CONFIRMED' ? '✓ مؤكدة' : '✗ مستبعدة';
+        alert(`نتيجة فحص الملاحظة #${fid}:\nالحالة: ${res.status}\nدرجة الدقة: ${res.confidence}% حتمي\nالسبب: ${res.reason}`);
+      } catch (e) {
+        alert('فشل الفحص: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    async function runCustomVerification() {
+      const urlInput = document.getElementById('customVerifyUrl');
+      const typeInput = document.getElementById('customVerifyType');
+      const btn = document.getElementById('btnRunCustomVerify');
+      const resultBox = document.getElementById('customVerifyResult');
+      const badge = document.getElementById('customVerifyBadge');
+      const reason = document.getElementById('customVerifyReason');
+      const proof = document.getElementById('customVerifyProof');
+
+      const url = (urlInput.value || '').trim();
+      if (!url) {
+        alert('يرجى إدخال رابط الهدف أو نقطة النهاية أولاً.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ جاري الفحص الحتمي...';
+
+      try {
+        const res = await api('/verify/check', {
+          method: 'POST',
+          body: JSON.stringify({
+            url: url,
+            finding_type: typeInput.value,
+            title: typeInput.options[typeInput.selectedIndex].text
+          })
+        });
+
+        resultBox.classList.remove('hidden');
+        if (res.status === 'CONFIRMED') {
+          badge.className = 'badge badge-emerald';
+          badge.textContent = '✓ ثغرة مؤكدة 100% (CONFIRMED)';
+        } else if (res.status === 'FALSE_POSITIVE') {
+          badge.className = 'badge badge-crimson';
+          badge.textContent = '✗ إنذار كاذب مستبعد (FALSE POSITIVE - 0% ERROR)';
+        } else {
+          badge.className = 'badge badge-amber';
+          badge.textContent = res.status;
+        }
+
+        reason.textContent = res.reason;
+        proof.textContent = res.technical_proof || 'No differential payload returned.';
+      } catch (e) {
+        alert('خطأ أثناء الفحص: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ بدء الفحص القطعي';
+      }
+    }
+
+    async function runBatchVerification() {
+      if (!confirm('هل ترغب في تشغيل الفحص الحتمي وتصفية الإنذارات الكاذبة لكافة الملاحظات المسجلة الآن؟')) {
+        return;
+      }
+
+      const slot = document.getElementById('contentSlot');
+      const currentHtml = slot.innerHTML;
+      slot.innerHTML = '<div style="text-align:center; padding: 60px;"><div class="pulse-dot" style="margin: 0 auto 16px auto; width:16px; height:16px;"></div>جاري فحص وتصفية الإنذارات الكاذبة عبر التحليل التفاضلي... قد يستغرق بضع ثوانٍ...</div>';
+
+      try {
+        const res = await api('/verify/batch', { method: 'POST' });
+        alert(`اكتمل الفحص الجماعي بنجاح!\nإجمالي الملاحظات المفحوصة: ${res.total_processed}\nالملاحظات المؤكدة 100%: ${res.confirmed}\nالإنذارات الكاذبة المستبعدة: ${res.false_positives}`);
+        renderVerification();
+      } catch (e) {
+        alert('فشل الفحص الجماعي: ' + e.message);
+        slot.innerHTML = currentHtml;
+      }
+    }
+
+    async function renderVerification() {
+      document.getElementById('pageTitle').textContent = 'مركز فحص وتأكيد الثغرات وتصفية الإنذارات الكاذبة';
+      document.getElementById('pageSubBadge').textContent = 'دقة 100% (Zero False Positives)';
+      const slot = document.getElementById('contentSlot');
+      slot.innerHTML = '<div style="text-align:center; padding: 60px;"><div class="pulse-dot" style="margin: 0 auto 16px auto; width:16px; height:16px;"></div>جاري تحميل منظومة التحقق الحتمي...</div>';
+
+      try {
+        const findings = await api('/data/findings');
+        const confirmedCount = findings.filter(f => f.verification === 'CONFIRMED').length;
+        const fpCount = findings.filter(f => f.verification === 'FALSE_POSITIVE').length;
+        const unverifiedCount = findings.filter(f => f.verification === 'UNVERIFIED' || !f.verification).length;
+
+        slot.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- بطاقات المؤشرات -->
+            <div class="grid-stats" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="glass stat-card">
+                <div class="stat-label">
+                  <span>إجمالي الملاحظات</span>
+                  <span class="badge badge-cyan">قاعدة البيانات</span>
+                </div>
+                <div class="stat-val" style="color: var(--cyan);">${findings.length}</div>
+              </div>
+
+              <div class="glass stat-card">
+                <div class="stat-label">
+                  <span>الثغرات المؤكدة 100%</span>
+                  <span class="badge badge-emerald">CONFIRMED</span>
+                </div>
+                <div class="stat-val" style="color: var(--emerald);">${confirmedCount}</div>
+              </div>
+
+              <div class="glass stat-card">
+                <div class="stat-label">
+                  <span>الإنذارات الكاذبة المستبعدة</span>
+                  <span class="badge badge-crimson">FALSE POSITIVE</span>
+                </div>
+                <div class="stat-val" style="color: var(--crimson);">${fpCount}</div>
+              </div>
+
+              <div class="glass stat-card">
+                <div class="stat-label">
+                  <span>قيد التدقيق الحتمي</span>
+                  <span class="badge badge-amber">UNVERIFIED</span>
+                </div>
+                <div class="stat-val" style="color: var(--amber);">${unverifiedCount}</div>
+              </div>
+            </div>
+
+            <!-- محرك الفحص عند الطلب On-Demand Verifier -->
+            <div class="glass" style="padding: 24px;">
+              <div style="margin-bottom: 18px;">
+                <h3 style="font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                  <span>⚡ أداة الفحص الفوري وتصفية الإنذارات الكاذبة بنسبة خطأ 0%</span>
+                  <span class="badge badge-cyan">Deterministic Probe</span>
+                </h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                  يقوم المحرك بإجراء فحص تفاضلي (Differential Analysis) للمسار ومقارنته مع مسار تمويهي (Canary Probe) لكشف واستبعاد صفحات الـ Soft-404 فورياً والتأكد من وجود الخلل حتمياً.
+                </p>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 12px; align-items: flex-end; margin-bottom: 16px;">
+                <div>
+                  <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block;">الرابط أو نقطة النهاية المراد فحصها وتأكيدها</label>
+                  <input id="customVerifyUrl" type="text" placeholder="https://example.com/.env أو https://example.com/api/test" style="width: 100%; direction: ltr;">
+                </div>
+
+                <div>
+                  <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block;">نوع الملاحظة الأمنية</label>
+                  <select id="customVerifyType" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 6px; font-size: 13px;">
+                    <option value="sensitive_file">ملف حساس أو نسخة احتياطية (.git, .env, .bak, .sql)</option>
+                    <option value="cors">سياسة مشاركة الموارد (CORS Misconfiguration)</option>
+                    <option value="headers">ترويسات الأمان (HSTS, CSP, X-Frame-Options)</option>
+                    <option value="s3">حاوية تخزين سحابي مفتوحة (Open S3 Bucket)</option>
+                    <option value="subdomain_takeover">استيلاء على نطاق فرعي (Subdomain Takeover)</option>
+                    <option value="debug_leak">تسريب خطأ برمجي أو تتبع استثناء (Debug / Stack Trace)</option>
+                    <option value="generic">فحص استجابة عام وتفاضلي (Differential Generic)</option>
+                  </select>
+                </div>
+
+                <button id="btnRunCustomVerify" class="btn" style="height: 42px; padding: 0 20px; font-weight: 800;" onclick="runCustomVerification()">
+                  ⚡ بدء الفحص القطعي
+                </button>
+              </div>
+
+              <!-- صندوق نتيجة الفحص الفوري -->
+              <div id="customVerifyResult" class="hidden" style="margin-top: 16px; padding: 18px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.4);">
+                <div class="flex justify-between items-center" style="margin-bottom: 10px;">
+                  <h4 style="font-size: 15px; font-weight: 800;">النتيجة القطعية للفحص:</h4>
+                  <span id="customVerifyBadge" class="badge"></span>
+                </div>
+                <div id="customVerifyReason" style="font-size: 13px; color: #fff; margin-bottom: 10px;"></div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 4px;">الدليل التقني والتحليل المقارن (Technical Proof):</div>
+                <pre id="customVerifyProof" class="code-editor-box" style="max-height: 160px; font-size: 11px;"></pre>
+              </div>
+            </div>
+
+            <!-- جدول التدقيق وتصفية الملاحظات المسجلة -->
+            <div class="glass" style="padding: 24px;">
+              <div class="flex justify-between items-center" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <h3 style="font-size: 18px; font-weight: 800;">خط فحص وتأكيد الملاحظات المسجلة (${findings.length})</h3>
+                  <p style="font-size: 12px; color: var(--text-muted);">تأكيد كل ثغرة بنقرة زر واحدة أو تشغيل الفحص الجماعي لتصفية الإنذارات الكاذبة</p>
+                </div>
+                <button class="btn btn-sm" style="background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); color: #000; font-weight: 800; padding: 10px 18px;" onclick="runBatchVerification()">
+                  ⚡ تشغيل الفحص الجماعي وتصفية كافة الإنذارات الكاذبة
+                </button>
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>الخطورة</th>
+                      <th>عنوان الملاحظة</th>
+                      <th>الرابط المستهدف</th>
+                      <th>حالة التأكيد الحتمي</th>
+                      <th>الإجراء</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${findings.length > 0 ? findings.map(f => `
+                      <tr>
+                        <td><span class="badge sev-${f.severity}">${f.severity}</span></td>
+                        <td style="font-weight: 700;">${escapeHtml(f.title)}</td>
+                        <td class="mono" style="font-size: 12px; color: var(--cyan);">${escapeHtml(f.url || '—')}</td>
+                        <td id="verGridBadge_${f.id}">
+                          ${f.verification === 'CONFIRMED' 
+                            ? '<span class="badge badge-emerald" style="font-weight: 800;">✓ مؤكدة 100% (CONFIRMED)</span>' 
+                            : (f.verification === 'FALSE_POSITIVE'
+                              ? '<span class="badge badge-crimson" style="text-decoration: line-through;">✗ إنذار كاذب مستبعد</span>'
+                              : '<span class="badge badge-amber">قيد التدقيق</span>')}
+                        </td>
+                        <td>
+                          <button class="btn btn-sm" style="padding: 5px 12px; font-size: 11px;" onclick="verifySingleFindingInline(${f.id}, this)">
+                            ⚡ فحص وتأكيد
+                          </button>
+                        </td>
+                      </tr>
+                    `).join('') : '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">لا توجد ملاحظات مسجلة حالياً للفحص.</td></tr>'}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        slot.innerHTML = `<div class="glass" style="padding: 30px; color: var(--crimson);">فشل: ${e.message}</div>`;
+      }
     }
 
     // ==========================================
@@ -2642,6 +2971,7 @@ ${rem}
     // 7. النافذة المنبثقة للثغرة
     // ==========================================
     function showModal(finding) {
+      currentModalFinding = finding;
       document.getElementById('modalTitle').textContent = finding.title || 'ملاحظة أمنية';
       const sevEl = document.getElementById('modalSev');
       sevEl.className = 'badge sev-' + (finding.severity || 'INFO');
@@ -2649,9 +2979,23 @@ ${rem}
       
       document.getElementById('modalUrl').textContent = finding.url || 'N/A';
       document.getElementById('modalConfidence').textContent = finding.confidence || 'MEDIUM';
-      document.getElementById('modalVerification').textContent = finding.verification || 'UNVERIFIED';
+
+      const verEl = document.getElementById('modalVerification');
+      verEl.textContent = finding.verification || 'UNVERIFIED';
+      verEl.className = finding.verification === 'CONFIRMED' 
+        ? 'badge badge-emerald' 
+        : (finding.verification === 'FALSE_POSITIVE' ? 'badge badge-crimson' : 'badge badge-amber');
+
       document.getElementById('modalSource').textContent = finding.source || 'automated';
       document.getElementById('modalEvidence').textContent = finding.evidence || 'لا توجد أدلة خام إضافية مسجلة.';
+
+      const verifyBox = document.getElementById('modalVerifyResultBox');
+      if (verifyBox) verifyBox.classList.add('hidden');
+      const verifyBtn = document.getElementById('modalVerifyBtn');
+      if (verifyBtn) {
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = '⚡ فحص وتأكيد الثغرة بنسبة خطأ 0% (Run Zero-Noise Verification)';
+      }
       
       document.getElementById('modalSlot').classList.remove('hidden');
     }

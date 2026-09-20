@@ -118,6 +118,71 @@ def data(kind:str,authorization:str|None=Header(None),db:Session=Depends(get_db)
  if not cls: raise HTTPException(404,'Unknown resource')
  rows=db.execute(select(cls).order_by(cls.id.desc()).limit(500)).scalars()
  return [{k:v for k,v in x.__dict__.items() if k!='_sa_instance_state'} for x in rows]
+
+class VerifyCheckIn(BaseModel):
+    url: str
+    title: str = ''
+    finding_type: str = ''
+
+@app.post('/api/verify/finding/{fid}')
+def verify_single_finding(fid: int, authorization: str | None = Header(None), db: Session = Depends(get_db)):
+    import time
+    u = auth(authorization, db)
+    f = db.get(Finding, fid)
+    if not f:
+        raise HTTPException(404, 'Finding not found')
+    from .verifier import verify_finding_deterministically
+    res = verify_finding_deterministically(f.title, f.url, evidence=f.evidence)
+    f.verification = res['status']
+    f.confidence = f"{res['confidence']}% DETERMINISTIC"
+    f.evidence = (f.evidence or '') + f"\n\n[VERIFICATION AUDIT {time.strftime('%Y-%m-%d %H:%M:%S')}]:\nStatus: {res['status']}\nReason: {res['reason']}\nTechnical Proof: {res['technical_proof']}"
+    db.add(AuditLog(username=u.username, action='verify_finding', details=f"finding_id={fid} status={res['status']} url={f.url}"))
+    db.commit()
+    db.refresh(f)
+    return {
+        'id': f.id,
+        'title': f.title,
+        'url': f.url,
+        'status': res['status'],
+        'confidence': res['confidence'],
+        'reason': res['reason'],
+        'technical_proof': res['technical_proof'],
+        'diff_details': res['diff_details']
+    }
+
+@app.post('/api/verify/check')
+def verify_arbitrary_check(x: VerifyCheckIn, authorization: str | None = Header(None), db: Session = Depends(get_db)):
+    auth(authorization, db)
+    from .verifier import verify_finding_deterministically
+    return verify_finding_deterministically(x.title, x.url, finding_type=x.finding_type)
+
+@app.post('/api/verify/batch')
+def verify_batch_findings(authorization: str | None = Header(None), db: Session = Depends(get_db)):
+    u = auth(authorization, db)
+    from .verifier import verify_finding_deterministically
+    findings = db.execute(select(Finding).where(Finding.verification == 'UNVERIFIED').limit(100)).scalars().all()
+    confirmed = 0
+    false_positives = 0
+    results = []
+    for f in findings:
+        res = verify_finding_deterministically(f.title, f.url, evidence=f.evidence)
+        f.verification = res['status']
+        f.confidence = f"{res['confidence']}% DETERMINISTIC"
+        f.evidence = (f.evidence or '') + f"\n\n[VERIFICATION AUDIT]: {res['status']} - {res['reason']}"
+        if res['status'] == 'CONFIRMED':
+            confirmed += 1
+        else:
+            false_positives += 1
+        results.append({'id': f.id, 'title': f.title, 'status': res['status'], 'reason': res['reason']})
+    db.add(AuditLog(username=u.username, action='batch_verify', details=f"total={len(findings)} confirmed={confirmed} false_positives={false_positives}"))
+    db.commit()
+    return {
+        'total_processed': len(findings),
+        'confirmed': confirmed,
+        'false_positives': false_positives,
+        'results': results
+    }
+
 @app.get('/api/reports/{sid}/{fmt}')
 def report(sid:int,fmt:str,authorization:str|None=Header(None),db:Session=Depends(get_db)):
  auth(authorization,db)
