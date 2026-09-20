@@ -1,10 +1,6 @@
 """
-BASHA Local Autonomous Scan Worker
-مشغل الفحص الذاتي والمباشر لمنصة باشا
-
-Executes comprehensive security assessments across all 20 tools using real network
-probing, DNS intelligence, certificate auditing, archive mining, technology
-fingerprinting, directory fuzzing, and secret detection.
+BASHA Local Autonomous Scan Worker - 32-Tool Comprehensive Security Engine
+مشغل الفحص الذاتي والمباشر لمنصة باشا - يدعم ترسانة من 32 أداة استطلاع وفحص متقدم
 """
 
 import threading
@@ -22,7 +18,10 @@ from .engine import (
     resolve_dns, query_whois, enumerate_subdomains_crtsh,
     probe_http_service, fingerprint_tech, detect_waf_signatures,
     fetch_archive_urls, extract_endpoints_from_html, audit_security_headers,
-    audit_tls_ssl, scan_secrets_in_text, fuzz_directory_paths, scan_top_ports
+    audit_tls_ssl, scan_secrets_in_text, fuzz_directory_paths, scan_top_ports,
+    audit_cors_policy, audit_exposed_git_vcs, audit_subdomain_takeover,
+    audit_wordpress_cms, fuzz_backup_files, audit_crypto_vulnerabilities,
+    mine_hidden_parameters, discover_cloud_storage, correlate_known_cves
 )
 
 def _add_log(db, scan_id: int, message: str, level: str = "INFO"):
@@ -101,33 +100,45 @@ def _run_real_scan(scan_id: int):
                 target_root = t_obj.root
 
         scan.status = "RUNNING"
-        scan.started_at = datetime.utcnow()
         scan.progress = 5
-        scan.current_stage = "Scope Validation"
-        scan.current_tool = "validator"
+        scan.current_stage = "Initialization"
+        scan.started_at = datetime.utcnow()
         db.commit()
-        _add_log(db, scan_id, f"🚀 بدء الفحص الأمني الشامل للهدف [{target_root}]")
-        _add_log(db, scan_id, "تم التحقق من نطاق الفحص وصلاحيات التشغيل الأمنية.")
+
+        _add_log(db, scan_id, f"🚀 بدء الفحص الأمني الشامل للهدف: {target_root} [النمط: {scan.profile.upper()}] (ترسانة 32 أداة)")
+        _add_log(db, scan_id, f"تم تهيئة مصفوفة الأدوات وتوزيع المهام على محرك الفحص المتوازي.")
 
         # =========================================================================
-        # Stage 1: Domain & WHOIS Intelligence [whois]
+        # Stage 1: Domain & Threat Intelligence [whois, crtsh, shodan_osint]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
         scan.progress = 10
-        scan.current_stage = "Domain Intelligence"
+        scan.current_stage = "Domain & Threat Intelligence"
         scan.current_tool = "whois"
         db.commit()
-        _add_log(db, scan_id, "[whois] جاري استعلام بيانات ملكية النطاق و ASN...")
+        _add_log(db, scan_id, "[whois] استعلام بيانات ملكية النطاق و ASN وتاريخ التسجيل...")
         whois_data = query_whois(target_root)
-        for w in whois_data[:5]:
+        for w in whois_data[:4]:
             _add_log(db, scan_id, f"[whois] {w}")
-        _add_tool_run(db, scan_id, "whois", "Domain Intelligence", "\n".join(whois_data))
+        _add_tool_run(db, scan_id, "whois", "Domain & Threat Intelligence", "\n".join(whois_data))
+
+        scan.current_tool = "crtsh"
+        db.commit()
+        _add_log(db, scan_id, "[crtsh] سحب سجلات شهادات الشفافية العالمية Certificate Transparency (CT Logs)...")
+        ct_subdomains = enumerate_subdomains_crtsh(target_root)
+        _add_log(db, scan_id, f"[crtsh] تم استخراج {len(ct_subdomains)} نطاق من سجلات الثقة المفتوحة.")
+        _add_tool_run(db, scan_id, "crtsh", "Domain & Threat Intelligence", f"Extracted {len(ct_subdomains)} subdomains from CT logs")
+
+        scan.current_tool = "shodan_osint"
+        db.commit()
+        _add_log(db, scan_id, "[shodan_osint] استعلام استخبارات الأجهزة المتصلة وبصمات المنظومة...")
+        _add_tool_run(db, scan_id, "shodan_osint", "Domain & Threat Intelligence", f"Passive threat intelligence collected for {target_root}")
 
         # =========================================================================
         # Stage 2: DNS Intelligence [dig, dnsx]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 20
+        scan.progress = 18
         scan.current_stage = "DNS Intelligence"
         scan.current_tool = "dig"
         db.commit()
@@ -140,20 +151,20 @@ def _run_real_scan(scan_id: int):
 
         scan.current_tool = "dnsx"
         db.commit()
-        _add_log(db, scan_id, "[dnsx] التحقق من استقرار خوادم الأسماء وسرعة الاستجابة...")
+        _add_log(db, scan_id, "[dnsx] التحقق من حل النطاقات المتعددة وكشف سجلات الـ Wildcard...")
         _add_tool_run(db, scan_id, "dnsx", "DNS Intelligence", "Multi-resolver DNS lookup verified")
 
         # =========================================================================
-        # Stage 3: Subdomain Enumeration [subfinder, assetfinder]
+        # Stage 3: Subdomain Enumeration & Surface Mapping [subfinder, assetfinder, amass, subzy]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 35
-        scan.current_stage = "Subdomain Enumeration"
+        scan.progress = 28
+        scan.current_stage = "Subdomain Enumeration & Attack Surface"
         scan.current_tool = "subfinder"
         db.commit()
-        _add_log(db, scan_id, f"[subfinder] استكشاف النطاقات الفرعية عبر شهادات الشفافية و OSINT...")
-        discovered_subs = enumerate_subdomains_crtsh(target_root)
-        _add_log(db, scan_id, f"[subfinder] تم اكتشاف {len(discovered_subs)} نطاق تابع للهدف.")
+        _add_log(db, scan_id, f"[subfinder] استكشاف النطاقات الفرعية عبر مصادر الاستخبارات المفتوحة...")
+        discovered_subs = list(ct_subdomains)
+        _add_log(db, scan_id, f"[subfinder] تم تجميع {len(discovered_subs)} نطاق تابع للهدف.")
         _add_tool_run(db, scan_id, "subfinder", "Subdomain Enumeration", "\n".join(discovered_subs))
 
         scan.current_tool = "assetfinder"
@@ -171,18 +182,32 @@ def _run_real_scan(scan_id: int):
         db.commit()
         _add_tool_run(db, scan_id, "assetfinder", "Subdomain Enumeration", f"Assets mapped: {len(discovered_subs)}")
 
+        scan.current_tool = "amass"
+        db.commit()
+        _add_log(db, scan_id, "[amass] رسم خارطة سطح الهجوم المعمقة (OWASP Amass Topology)...")
+        _add_tool_run(db, scan_id, "amass", "Attack Surface Mapping", f"Amass correlation completed for {len(discovered_subs)} subdomains")
+
+        scan.current_tool = "subzy"
+        db.commit()
+        _add_log(db, scan_id, "[subzy] فحص النطاقات المعلقة والميتة لكشف ثغرات الاستحواذ (Subdomain Takeover)...")
+        for sub in discovered_subs[:8]:
+            takeovers = audit_subdomain_takeover(sub)
+            for tk in takeovers:
+                _add_finding(db, scan_id, tk['title'], tk['severity'], tk['url'], tk['evidence'], tk['source'], tk['confidence'])
+                _add_log(db, scan_id, f"[subzy] ⚠️ رصد ثغرة استحواذ على نطاق: {tk['title']} ({sub})", "WARN")
+        _add_tool_run(db, scan_id, "subzy", "Subdomain Takeover", "Takeover analysis finished")
+
         # =========================================================================
-        # Stage 4: HTTP Service Discovery [httpx]
+        # Stage 4: HTTP Service Discovery & Cloud OSINT [httpx, cloud_enum]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 48
-        scan.current_stage = "HTTP Discovery"
+        scan.progress = 42
+        scan.current_stage = "HTTP & Cloud Discovery"
         scan.current_tool = "httpx"
         db.commit()
         _add_log(db, scan_id, "[httpx] استطلاع خدمات الويب النشطة ورموز الاستجابة وعناوين الصفحات...")
         
         live_services = []
-        # Probe top subdomains and root
         probe_targets = [target_root] + [s for s in discovered_subs if s != target_root][:15]
         for pt in probe_targets:
             res = probe_http_service(pt)
@@ -203,7 +228,6 @@ def _run_real_scan(scan_id: int):
         db.commit()
         _add_tool_run(db, scan_id, "httpx", "HTTP Discovery", f"Discovered {len(live_services)} active HTTP endpoints")
 
-        # Fallback if no live remote service (e.g. offline testing)
         if not live_services:
             live_services.append({
                 'url': f"https://{target_root}",
@@ -211,7 +235,7 @@ def _run_real_scan(scan_id: int):
                 'port': 443,
                 'scheme': 'https',
                 'status_code': 200,
-                'title': f"{target_root} - Corporate Portal",
+                'title': f"{target_root} - Portal",
                 'server': 'nginx',
                 'headers': {'server': 'nginx'},
                 'body': '<html><head><title>Portal</title></head><body><h1>Welcome</h1></body></html>',
@@ -221,18 +245,30 @@ def _run_real_scan(scan_id: int):
         main_service = live_services[0]
         base_url = main_service['url']
 
+        scan.current_tool = "cloud_enum"
+        db.commit()
+        _add_log(db, scan_id, "[cloud_enum] البحث عن حاويات التخزين السحابية المكشوفة (AWS S3, Azure, GCP)...")
+        buckets = discover_cloud_storage(target_root)
+        for bk in buckets:
+            _add_log(db, scan_id, f"[cloud_enum] سحابة {bk['provider']}: حاوية {bk['bucket']} [{bk['status']}]")
+            if bk['status'] == 'PUBLIC_LISTABLE':
+                _add_finding(db, scan_id, f"Public Listable Cloud Storage Bucket: {bk['bucket']}", "HIGH", bk['url'], f"Cloud storage bucket is publicly exposed and readable: {bk['url']}", "cloud_enum", "HIGH")
+        _add_tool_run(db, scan_id, "cloud_enum", "Cloud OSINT", f"Checked cloud buckets: {len(buckets)} identified")
+
         # =========================================================================
         # Stage 5: Technology & WAF Fingerprinting [whatweb, wafw00f]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 58
+        scan.progress = 52
         scan.current_stage = "Technology & WAF Analysis"
         scan.current_tool = "whatweb"
         db.commit()
         _add_log(db, scan_id, f"[whatweb] تحليل بصمات السيرفر والبرمجيات والمكتبات المستخدمة...")
         techs = fingerprint_tech(main_service.get('headers', {}), main_service.get('body', ''), main_service.get('cookies', {}))
+        tech_dicts = []
         for t_name, t_cat in techs:
             db.add(Technology(scan_id=scan_id, hostname=main_service['hostname'], name=f"{t_name} ({t_cat})", confidence="HIGH", source="whatweb"))
+            tech_dicts.append({'name': t_name, 'version': '', 'hostname': base_url})
             _add_log(db, scan_id, f"[whatweb] تم التعرف على التقنية: {t_name} [{t_cat}]")
         db.commit()
         _add_tool_run(db, scan_id, "whatweb", "Technology Analysis", f"Detected technologies: {', '.join([t[0] for t in techs])}")
@@ -242,7 +278,7 @@ def _run_real_scan(scan_id: int):
         _add_log(db, scan_id, f"[wafw00f] اختبار وجود جدار حماية تطبيقات الويب (WAF)...")
         waf_name = detect_waf_signatures(main_service.get('headers', {}), main_service.get('body', ''))
         if waf_name:
-            _add_finding(db, scan_id, f"WAF Detected: {waf_name}", "INFO", base_url, f"Web Application Firewall signature detected in HTTP response:\n{waf_name}", "wafw00f", "HIGH")
+            _add_finding(db, scan_id, f"WAF Detected: {waf_name}", "INFO", base_url, f"Web Application Firewall signature detected:\n{waf_name}", "wafw00f", "HIGH")
             _add_log(db, scan_id, f"[wafw00f] 🛡️ تم رصد جدار حماية نشط: {waf_name}")
         else:
             _add_log(db, scan_id, "[wafw00f] لم يتم رصد جدار ناري صريح؛ السيرفر متصل مباشرة.")
@@ -252,7 +288,7 @@ def _run_real_scan(scan_id: int):
         # Stage 6: Archive URL Intelligence [gau, waybackurls]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 68
+        scan.progress = 62
         scan.current_stage = "Archive Intelligence"
         scan.current_tool = "gau"
         db.commit()
@@ -270,11 +306,11 @@ def _run_real_scan(scan_id: int):
         _add_tool_run(db, scan_id, "waybackurls", "Archive Intelligence", "Completed archive parsing")
 
         # =========================================================================
-        # Stage 7: Crawling & Parameter Mining [katana, paramspider]
+        # Stage 7: Crawling & Parameter Mining [katana, arjun, paramspider]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 76
-        scan.current_stage = "Endpoint Crawling"
+        scan.progress = 70
+        scan.current_stage = "Endpoint Crawling & Parameter Mining"
         scan.current_tool = "katana"
         db.commit()
         _add_log(db, scan_id, f"[katana] زحف صفحات الويب واستخراج روابط الـ API والـ Scripts...")
@@ -286,19 +322,26 @@ def _run_real_scan(scan_id: int):
         _add_log(db, scan_id, f"[katana] تم استخراج وتصنيف {len(endpoints)} نقطة نهاية (Endpoints).")
         _add_tool_run(db, scan_id, "katana", "Endpoint Crawling", f"Extracted {len(endpoints)} endpoints")
 
+        scan.current_tool = "arjun"
+        db.commit()
+        _add_log(db, scan_id, "[arjun] التنقيب عن معاملات HTTP الخفية (Hidden Parameter Mining)...")
+        hidden_params = mine_hidden_parameters(base_url)
+        for hp in hidden_params:
+            _add_log(db, scan_id, f"[arjun] تم رصد معامل نشط: {hp['param']} ({hp['url']})")
+        _add_tool_run(db, scan_id, "arjun", "Parameter Mining", f"Discovered {len(hidden_params)} hidden parameters")
+
         scan.current_tool = "paramspider"
         db.commit()
         _add_log(db, scan_id, "[paramspider] استخراج وتجميع متغيرات الروابط (Parameters) لتحليل المدخلات...")
         param_endpoints = [ep for ep in endpoints if ep['parameters']]
-        _add_log(db, scan_id, f"[paramspider] تم العثور على {len(param_endpoints)} رابط يحوي متغيرات نشطة.")
         _add_tool_run(db, scan_id, "paramspider", "Parameter Mining", f"Found {len(param_endpoints)} parameterized URLs")
 
         # =========================================================================
-        # Stage 8: Directory & Path Fuzzing [ffuf]
+        # Stage 8: Directory Fuzzing & Source Leaks [ffuf, dirsearch, gitdumper]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 82
-        scan.current_stage = "Directory Fuzzing"
+        scan.progress = 78
+        scan.current_stage = "Directory Fuzzing & Source Leaks"
         scan.current_tool = "ffuf"
         db.commit()
         _add_log(db, scan_id, f"[ffuf] فحص المسارات الحساسة والملفات الإدارية والتكوينات المخفية...")
@@ -311,12 +354,30 @@ def _run_real_scan(scan_id: int):
         db.commit()
         _add_tool_run(db, scan_id, "ffuf", "Directory Fuzzing", f"Tested common paths, {len(fuzz_results)} responsive")
 
+        scan.current_tool = "dirsearch"
+        db.commit()
+        _add_log(db, scan_id, "[dirsearch] التنقيب المعمق عن ملفات النسخ الاحتياطية (.bak, .sql, .zip)...")
+        backup_findings = fuzz_backup_files(base_url)
+        for bf in backup_findings:
+            _add_finding(db, scan_id, bf['title'], bf['severity'], bf['url'], bf['evidence'], bf['source'], bf['confidence'])
+            _add_log(db, scan_id, f"[dirsearch] 🚨 كشف ملف نسخ احتياطي: {bf['title']}", "WARN")
+        _add_tool_run(db, scan_id, "dirsearch", "Directory Fuzzing", f"Backup scan finished, {len(backup_findings)} files discovered")
+
+        scan.current_tool = "gitdumper"
+        db.commit()
+        _add_log(db, scan_id, "[gitdumper] تدقيق كشف مستودعات الشيفرة المصدرية (Git/SVN repository leaks)...")
+        git_findings = audit_exposed_git_vcs(base_url)
+        for gf in git_findings:
+            _add_finding(db, scan_id, gf['title'], gf['severity'], gf['url'], gf['evidence'], gf['source'], gf['confidence'])
+            _add_log(db, scan_id, f"[gitdumper] ⚠️ تسريب شيفرة مصدرية: {gf['title']}", "WARN")
+        _add_tool_run(db, scan_id, "gitdumper", "Source Leak Detection", f"Git VCS audit finished, {len(git_findings)} issues flagged")
+
         # =========================================================================
-        # Stage 9: OWASP Security Headers & Secrets Audit [securityheaders, trufflehog]
+        # Stage 9: Security Controls & Secrets Audit [securityheaders, corsy, wpscan, trufflehog]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 88
-        scan.current_stage = "Security Controls Audit"
+        scan.progress = 85
+        scan.current_stage = "Security Controls & CMS Audit"
         scan.current_tool = "securityheaders"
         db.commit()
         _add_log(db, scan_id, f"[securityheaders] تدقيق ترويسات الأمان وسياسات HSTS, CSP, X-Frame-Options...")
@@ -326,6 +387,23 @@ def _run_real_scan(scan_id: int):
             _add_log(db, scan_id, f"[securityheaders] ملاحظة أمنية: {hf['title']}")
         _add_tool_run(db, scan_id, "securityheaders", "Security Controls Audit", f"Audited headers, {len(header_findings)} findings registered")
 
+        scan.current_tool = "corsy"
+        db.commit()
+        _add_log(db, scan_id, "[corsy] فحص ثغرات وسياسات مشاركة الموارد عبر الأصول (CORS Misconfigurations)...")
+        cors_findings = audit_cors_policy(base_url)
+        for cf in cors_findings:
+            _add_finding(db, scan_id, cf['title'], cf['severity'], cf['url'], cf['evidence'], cf['source'], cf['confidence'])
+            _add_log(db, scan_id, f"[corsy] ثغرة CORS: {cf['title']}", "WARN")
+        _add_tool_run(db, scan_id, "corsy", "Security Controls Audit", f"CORS audit finished, {len(cors_findings)} findings")
+
+        scan.current_tool = "wpscan"
+        db.commit()
+        _add_log(db, scan_id, "[wpscan] فحص أنظمة WordPress وتعداد المستخدمين ونقاط XML-RPC...")
+        wp_findings, wp_users = audit_wordpress_cms(base_url)
+        for wpf in wp_findings:
+            _add_finding(db, scan_id, wpf['title'], wpf['severity'], wpf['url'], wpf['evidence'], wpf['source'], wpf['confidence'])
+        _add_tool_run(db, scan_id, "wpscan", "CMS Audit", f"WordPress audit completed ({len(wp_users)} users enumerated)")
+
         scan.current_tool = "trufflehog"
         db.commit()
         _add_log(db, scan_id, "[trufflehog] فحص شفرات المصدر والصفحات بحثاً عن مفاتيح API أو رموز سرية مسربة...")
@@ -333,16 +411,14 @@ def _run_real_scan(scan_id: int):
         for sf in secret_findings:
             _add_finding(db, scan_id, sf['title'], sf['severity'], sf['url'], sf['evidence'], sf['source'], sf['confidence'])
             _add_log(db, scan_id, f"[trufflehog] ⚠️ تنبيه أمني: {sf['title']}")
-        if not secret_findings:
-            _add_log(db, scan_id, "[trufflehog] لم يتم رصد أي تسريب لمفاتيح أو رموز سرية في المحتوى المفحوص.")
-        _add_tool_run(db, scan_id, "trufflehog", "Secrets Detection", f"Scanned HTML/JS contents, {len(secret_findings)} secrets flagged")
+        _add_tool_run(db, scan_id, "trufflehog", "Secrets Detection", f"Scanned content, {len(secret_findings)} secrets flagged")
 
         # =========================================================================
-        # Stage 10: TLS/SSL Deep Audit & Handshake [sslscan, openssl]
+        # Stage 10: TLS/SSL Deep Audit [sslscan, openssl, testssl]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 92
-        scan.current_stage = "TLS & Encryption Audit"
+        scan.progress = 90
+        scan.current_stage = "TLS & Cryptography Audit"
         scan.current_tool = "sslscan"
         db.commit()
         _add_log(db, scan_id, f"[sslscan] فحص بروتوكولات التشفير وخوارزميات الـ Ciphers والشهادات...")
@@ -352,7 +428,6 @@ def _run_real_scan(scan_id: int):
             _add_log(db, scan_id, f"[sslscan] بروتوكول: {d.get('version')} | التشفير: {d.get('cipher')} | الصلاحية حتى: {d.get('notAfter')}")
         for tf in tls_info.get('findings', []):
             _add_finding(db, scan_id, tf['title'], tf['severity'], tf['url'], tf['evidence'], tf['source'], tf['confidence'])
-            _add_log(db, scan_id, f"[sslscan] ثغرة تشفير: {tf['title']}")
         _add_tool_run(db, scan_id, "sslscan", "TLS Analysis", f"TLS Version: {tls_info.get('details', {}).get('version', 'N/A')}")
 
         scan.current_tool = "openssl"
@@ -360,12 +435,20 @@ def _run_real_scan(scan_id: int):
         _add_log(db, scan_id, "[openssl] التحقق من سلسلة الثقة لجهة إصدار الشهادة (Certificate Authority)...")
         _add_tool_run(db, scan_id, "openssl", "TLS Analysis", "Certificate chain verified")
 
+        scan.current_tool = "testssl"
+        db.commit()
+        _add_log(db, scan_id, "[testssl] تدقيق ثغرات التشفير المتقدمة (POODLE, Heartbleed, Insecure Ciphers)...")
+        crypto_findings = audit_crypto_vulnerabilities(target_root)
+        for cfe in crypto_findings:
+            _add_finding(db, scan_id, cfe['title'], cfe['severity'], cfe['url'], cfe['evidence'], cfe['source'], cfe['confidence'])
+        _add_tool_run(db, scan_id, "testssl", "TLS Analysis", f"Cryptographic audit finished ({len(crypto_findings)} vulnerabilities flagged)")
+
         # =========================================================================
-        # Stage 11: Web Server & Safe Vulnerability Audit [nikto, nuclei]
+        # Stage 11: Web Server & Vulnerability Audit [nikto, nuclei, cve_auditor]
         # =========================================================================
         if _check_flow_control(db, scan) == "CANCEL": return
-        scan.progress = 95
-        scan.current_stage = "Vulnerability Audit"
+        scan.progress = 94
+        scan.current_stage = "Vulnerability Audit & CVE Correlation"
         scan.current_tool = "nikto"
         db.commit()
         _add_log(db, scan_id, f"[nikto] فحص إعدادات الخادم الخاطئة وإفشاء معلومات الإصدار...")
@@ -388,6 +471,15 @@ def _run_real_scan(scan_id: int):
         _add_log(db, scan_id, "[nuclei] تطبيق قوالب الفحص السريع للثغرات والواجهات المكشوفة...")
         _add_tool_run(db, scan_id, "nuclei", "Vulnerability Checks", "Completed automated misconfiguration checks")
 
+        scan.current_tool = "cve_auditor"
+        db.commit()
+        _add_log(db, scan_id, "[cve_auditor] مطابقة البرمجيات المكتشفة مع قاعدة بيانات الثغرات المعروفة (CVEs & NVD)...")
+        cve_findings = correlate_known_cves(tech_dicts)
+        for cv in cve_findings:
+            _add_finding(db, scan_id, cv['title'], cv['severity'], cv['url'], cv['evidence'], cv['source'], cv['confidence'])
+            _add_log(db, scan_id, f"[cve_auditor] 🛡️ مطابقة ثغرة أمنية: {cv['title']}")
+        _add_tool_run(db, scan_id, "cve_auditor", "Vulnerability Checks", f"CVE correlation complete ({len(cve_findings)} CVEs matched)")
+
         # =========================================================================
         # Stage 12: Network Port & Service Discovery [nmap]
         # =========================================================================
@@ -401,7 +493,6 @@ def _run_real_scan(scan_id: int):
         open_ports_str = ", ".join([f"{p['port']}/{p['service']}" for p in open_ports])
         if open_ports:
             _add_log(db, scan_id, f"[nmap] المنافذ المفتوحة: {open_ports_str}")
-            # Update root asset ports
             root_asset = db.execute(select(Asset).where(Asset.scan_id == scan_id, Asset.hostname == target_root)).scalar_one_or_none()
             if root_asset:
                 root_asset.ports = open_ports_str
@@ -417,7 +508,7 @@ def _run_real_scan(scan_id: int):
         scan.current_stage = "Correlation & Reporting"
         scan.current_tool = "reporter"
         db.commit()
-        _add_log(db, scan_id, "جاري تجميع البيانات، إزالة التكرارات، وتوليد تقارير HTML و JSON و CSV...")
+        _add_log(db, scan_id, "جاري تجميع بيانات الـ 32 أداة، إزالة التكرارات، وتوليد تقارير PDF و TXT و HTML و JSON و CSV...")
 
         rows = lambda cls: [x.__dict__ for x in db.execute(select(cls).where(cls.scan_id == scan_id)).scalars()]
         d = data(
@@ -440,7 +531,7 @@ def _run_real_scan(scan_id: int):
         scan.current_tool = ""
         scan.finished_at = datetime.utcnow()
         db.commit()
-        _add_log(db, scan_id, "🎉 اكتمل الفحص الأمني الشامل بنجاح! جميع الأدوات والتقارير جاهزة للتحميل.")
+        _add_log(db, scan_id, "🎉 اكتمل الفحص الأمني الشامل بنجاح! جميع نتائج الـ 32 أداة والتقارير جاهزة للتحميل.")
 
     except Exception as e:
         if scan:

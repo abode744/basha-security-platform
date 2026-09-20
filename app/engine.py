@@ -473,3 +473,258 @@ def scan_top_ports(hostname: str, timeout: float = 1.0) -> list[dict]:
         except Exception:
             continue
     return open_ports
+
+def audit_cors_policy(base_url: str, timeout: int = 5) -> list[dict]:
+    """Test CORS misconfigurations and origin reflection (Corsy engine)."""
+    findings = []
+    test_origins = ['https://evil-security-test.com', 'null']
+    with httpx.Client(timeout=timeout, verify=False, follow_redirects=False) as client:
+        for orig in test_origins:
+            try:
+                resp = client.get(base_url, headers={'Origin': orig})
+                acao = resp.headers.get('access-control-allow-origin', '')
+                acac = resp.headers.get('access-control-allow-credentials', '').lower()
+                if acao == orig or (acao == '*' and acac == 'true'):
+                    findings.append({
+                        'title': 'CORS Misconfiguration: Insecure Origin Reflection',
+                        'severity': 'HIGH' if acac == 'true' else 'MEDIUM',
+                        'url': base_url,
+                        'evidence': f"Origin '{orig}' was reflected in Access-Control-Allow-Origin: '{acao}' (Credentials: {acac or 'false'})",
+                        'source': 'corsy',
+                        'confidence': 'HIGH'
+                    })
+                    break
+            except Exception:
+                continue
+    return findings
+
+def audit_exposed_git_vcs(base_url: str, timeout: int = 5) -> list[dict]:
+    """Detect exposed Git, SVN, and version control repositories (GitDumper engine)."""
+    findings = []
+    vcs_checks = [
+        ('/.git/HEAD', 'ref: refs/', 'Exposed Git Repository Directory'),
+        ('/.git/config', '[core]', 'Exposed Git Configuration File'),
+        ('/.svn/entries', 'dir\n', 'Exposed SVN Subversion Directory'),
+        ('/.gitignore', '', 'Exposed .gitignore Sensitive Rules')
+    ]
+    with httpx.Client(timeout=timeout, verify=False, follow_redirects=False) as client:
+        for path, marker, title in vcs_checks:
+            try:
+                u = urljoin(base_url, path)
+                resp = client.get(u)
+                if resp.status_code == 200 and (marker in resp.text if marker else len(resp.content) > 10):
+                    findings.append({
+                        'title': f'Source Code & VCS Leak: {title}',
+                        'severity': 'CRITICAL' if '.git' in path else 'LOW',
+                        'url': u,
+                        'evidence': f"HTTP 200 response on {path}. First bytes: {resp.text[:100].strip()}",
+                        'source': 'gitdumper',
+                        'confidence': 'HIGH'
+                    })
+            except Exception:
+                continue
+    return findings
+
+def audit_subdomain_takeover(hostname: str, cnames: list[str] = None, body: str = "") -> list[dict]:
+    """Assess dangling CNAMEs and orphaned cloud provider takeovers (Subzy engine)."""
+    findings = []
+    signatures = [
+        ('github.io', 'There isn\'t a GitHub Pages site here', 'GitHub Pages Takeover'),
+        ('herokuapp.com', 'Heroku | No such app', 'Heroku Cloud App Takeover'),
+        ('s3.amazonaws.com', 'NoSuchBucket', 'AWS S3 Bucket Takeover'),
+        ('azurewebsites.net', '404 Web Site not found', 'Microsoft Azure Subdomain Takeover'),
+        ('cloudfront.net', 'Bad request', 'AWS CloudFront Distribution Takeover')
+    ]
+    check_targets = (cnames or []) + [hostname]
+    for target in check_targets:
+        for cname_needle, error_needle, title in signatures:
+            if cname_needle in target.lower() or (body and error_needle.lower() in body.lower()):
+                findings.append({
+                    'title': f'Subdomain Takeover Vulnerability: {title}',
+                    'severity': 'HIGH',
+                    'url': f"https://{hostname}",
+                    'evidence': f"Target '{target}' matches dangling cloud signature '{cname_needle}'",
+                    'source': 'subzy',
+                    'confidence': 'MEDIUM'
+                })
+    return findings
+
+def audit_wordpress_cms(base_url: str, timeout: int = 5) -> tuple[list[dict], list[dict]]:
+    """Audit WordPress plugins, sensitive endpoints, and enumerated users (WPScan engine)."""
+    findings = []
+    users = []
+    with httpx.Client(timeout=timeout, verify=False, follow_redirects=True) as client:
+        # 1. User enumeration via REST API
+        try:
+            resp = client.get(urljoin(base_url, '/wp-json/wp/v2/users'))
+            if resp.status_code == 200 and 'name' in resp.text:
+                data = resp.json()
+                if isinstance(data, list):
+                    for u in data[:5]:
+                        users.append(u.get('slug', u.get('name', 'user')))
+                    findings.append({
+                        'title': 'WordPress REST API User Enumeration',
+                        'severity': 'LOW',
+                        'url': urljoin(base_url, '/wp-json/wp/v2/users'),
+                        'evidence': f"Discovered WordPress usernames: {', '.join(users)}",
+                        'source': 'wpscan',
+                        'confidence': 'HIGH'
+                    })
+        except Exception:
+            pass
+
+        # 2. XML-RPC Enabled
+        try:
+            r = client.post(urljoin(base_url, '/xmlrpc.php'), content="<methodCall><methodName>system.listMethods</methodName></methodCall>")
+            if 'methodResponse' in r.text or r.status_code in (200, 405):
+                findings.append({
+                    'title': 'WordPress XML-RPC Interface Enabled',
+                    'severity': 'LOW',
+                    'url': urljoin(base_url, '/xmlrpc.php'),
+                    'evidence': "XML-RPC endpoint is active and accepting requests (potential amplification / brute-force vector)",
+                    'source': 'wpscan',
+                    'confidence': 'HIGH'
+                })
+        except Exception:
+            pass
+    return findings, users
+
+def fuzz_backup_files(base_url: str, timeout: int = 5) -> list[dict]:
+    """Search for sensitive archive, database, and configuration backups (Dirsearch engine)."""
+    findings = []
+    backup_files = [
+        '/backup.zip', '/db.sql', '/dump.sql', '/database.sql',
+        '/backup.tar.gz', '/site.zip', '/.env.old', '/config.php.bak',
+        '/web.config.old', '/settings.py.bak'
+    ]
+    with httpx.Client(timeout=timeout, verify=False, follow_redirects=False) as client:
+        for path in backup_files:
+            try:
+                u = urljoin(base_url, path)
+                resp = client.get(u)
+                if resp.status_code == 200 and int(resp.headers.get('content-length', 100)) > 50:
+                    findings.append({
+                        'title': f'Exposed Backup / Database File Discovered: {path}',
+                        'severity': 'CRITICAL',
+                        'url': u,
+                        'evidence': f"HTTP 200 OK on {u} with size {len(resp.content)} bytes",
+                        'source': 'dirsearch',
+                        'confidence': 'HIGH'
+                    })
+            except Exception:
+                continue
+    return findings
+
+def audit_crypto_vulnerabilities(hostname: str) -> list[dict]:
+    """Audit SSL/TLS cipher suites and known protocol flaws (TestSSL engine)."""
+    findings = []
+    try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        # Test basic connection
+        with socket.create_connection((hostname, 443), timeout=3.0) as sock:
+            with ctx.wrap_socket(sock, server_hostname=hostname) as ssock:
+                ver = ssock.version()
+                cipher = ssock.cipher()
+                if ver in ('TLSv1', 'TLSv1.1'):
+                    findings.append({
+                        'title': f'Deprecated Insecure Protocol Supported: {ver}',
+                        'severity': 'MEDIUM',
+                        'url': f"https://{hostname}",
+                        'evidence': f"Server negotiated deprecated protocol {ver}. TLS 1.2+ is required by modern security standards.",
+                        'source': 'testssl',
+                        'confidence': 'HIGH'
+                    })
+                if cipher and ('RC4' in cipher[0] or 'DES' in cipher[0] or 'MD5' in cipher[0]):
+                    findings.append({
+                        'title': f'Weak Cryptographic Cipher Suite: {cipher[0]}',
+                        'severity': 'HIGH',
+                        'url': f"https://{hostname}",
+                        'evidence': f"Negotiated cipher suite {cipher[0]} contains known mathematical weaknesses.",
+                        'source': 'testssl',
+                        'confidence': 'HIGH'
+                    })
+    except Exception:
+        pass
+    return findings
+
+def mine_hidden_parameters(base_url: str, timeout: int = 5) -> list[dict]:
+    """Mine common hidden query parameters and debugging flags (Arjun engine)."""
+    discovered = []
+    common_params = ['debug', 'admin', 'test', 'redirect', 'url', 'file', 'include', 'preview', 'format', 'key']
+    with httpx.Client(timeout=timeout, verify=False) as client:
+        try:
+            base_resp = client.get(base_url)
+            base_len = len(base_resp.content)
+            for param in common_params:
+                test_url = f"{base_url}{'&' if '?' in base_url else '?'}{param}=basha_probe"
+                resp = client.get(test_url)
+                if abs(len(resp.content) - base_len) > 200 or resp.status_code != base_resp.status_code:
+                    discovered.append({
+                        'param': param,
+                        'url': test_url,
+                        'differential_bytes': abs(len(resp.content) - base_len)
+                    })
+        except Exception:
+            pass
+    return discovered
+
+def discover_cloud_storage(root_domain: str, timeout: int = 4) -> list[dict]:
+    """OSINT discovery for public Amazon S3, Google Cloud, and Azure buckets (Cloud_Enum engine)."""
+    discoveries = []
+    base_name = root_domain.split('.')[0].lower()
+    bucket_names = [base_name, f"{base_name}-assets", f"{base_name}-public", f"{base_name}-media", f"{base_name}-backup"]
+    with httpx.Client(timeout=timeout, verify=False) as client:
+        for b in bucket_names:
+            s3_url = f"https://{b}.s3.amazonaws.com"
+            try:
+                r = client.get(s3_url)
+                if r.status_code == 200 and 'ListBucketResult' in r.text:
+                    discoveries.append({
+                        'bucket': b,
+                        'provider': 'AWS S3',
+                        'url': s3_url,
+                        'status': 'PUBLIC_LISTABLE',
+                        'severity': 'HIGH'
+                    })
+                elif r.status_code == 403:
+                    discoveries.append({
+                        'bucket': b,
+                        'provider': 'AWS S3',
+                        'url': s3_url,
+                        'status': 'PROTECTED_EXISTS',
+                        'severity': 'INFO'
+                    })
+            except Exception:
+                continue
+    return discoveries
+
+def correlate_known_cves(tech_list: list[dict]) -> list[dict]:
+    """Correlate detected server software and technologies with known CVE advisories (CVE_Auditor engine)."""
+    findings = []
+    # Known high-profile CVE patterns for common software versions
+    known_cve_db = {
+        'Apache 2.4.49': ('CVE-2021-41773', 'HIGH', 'Path traversal and remote code execution in Apache HTTP Server 2.4.49'),
+        'Apache 2.4.50': ('CVE-2021-42013', 'HIGH', 'Path traversal and RCE bypass in Apache HTTP Server 2.4.50'),
+        'nginx 1.18.0': ('CVE-2021-23017', 'MEDIUM', '1-byte memory overwrite in resolver component of nginx'),
+        'OpenSSL 1.0.1': ('CVE-2014-0160', 'CRITICAL', 'Heartbleed information disclosure in OpenSSL TLS heartbeat extension'),
+        'PHP 7.4.0': ('CVE-2019-11043', 'HIGH', 'Env variable overflow under php-fpm on nginx configurations'),
+        'WordPress 5.0': ('CVE-2019-8942', 'MEDIUM', 'Remote code execution via crop-image functionality in WordPress core')
+    }
+    for item in tech_list:
+        name = item.get('name', '')
+        version = item.get('version', '')
+        full_name = f"{name} {version}".strip()
+        for pattern, (cve_id, sev, desc) in known_cve_db.items():
+            if pattern.lower() in full_name.lower():
+                findings.append({
+                    'title': f'Known Vulnerability Correlated: {cve_id} ({name})',
+                    'severity': sev,
+                    'url': item.get('hostname', ''),
+                    'evidence': f"Detected version '{full_name}' matches {cve_id}: {desc}",
+                    'source': 'cve_auditor',
+                    'confidence': 'MEDIUM'
+                })
+    return findings
+
