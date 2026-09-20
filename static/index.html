@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>منصة باشا — الاستطلاع الأمني وفحص الأصول الرقمية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --bg-surface: #0e131d;
+      --bg-card: rgba(15, 22, 34, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(0, 242, 254, 0.3);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --cyan: #00f2fe;
+      --cyan-glow: rgba(0, 242, 254, 0.25);
+      --blue: #3b82f6;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --orange: #f97316;
+      --crimson: #ef4444;
+      --purple: #a855f7;
+      
+      --sidebar-w: 270px;
+      --radius: 12px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      direction: rtl;
+      text-align: right;
+      background-image: 
+        radial-gradient(circle at 85% 15%, rgba(0, 242, 254, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 15% 85%, rgba(168, 85, 247, 0.04) 0%, transparent 40%);
+    }
+
+    /* Typography & Utilities */
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .mono { font-family: 'JetBrains Mono', monospace; direction: ltr; display: inline-block; }
+    .hidden { display: none !important; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+    /* Glass Panels */
+    .glass {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .glass:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Badges & Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-cyan { background: rgba(0, 242, 254, 0.12); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.12); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.12); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-crimson { background: rgba(239, 68, 68, 0.12); color: var(--crimson); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-purple { background: rgba(168, 85, 247, 0.12); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .badge-blue { background: rgba(59, 130, 246, 0.12); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-muted { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* Severity Colors */
+    .sev-CRITICAL { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .sev-HIGH { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .sev-MEDIUM { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .sev-LOW { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .sev-INFO { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+
+    /* Live Pulse Dot */
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulseAnim 2s infinite;
+    }
+    @keyframes pulseAnim {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+      color: #07090e;
+      font-weight: 800;
+      font-size: 13px;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 2px 12px rgba(0, 242, 254, 0.25);
+      font-family: inherit;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      box-shadow: none;
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fff;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    /* Forms */
+    input, select, textarea {
+      width: 100%;
+      background: rgba(10, 14, 22, 0.8);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: var(--transition);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.15);
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: right;
+    }
+    th {
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 13px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text);
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    tr.clickable {
+      cursor: pointer;
+    }
+
+    /* Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: rgba(10, 14, 22, 0.95);
+      border-left: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px 24px 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(79, 172, 254, 0.1) 100%);
+      border: 1px solid var(--border-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+    .brand-text h2 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #fff 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-dim);
+      padding: 12px 12px 6px 12px;
+    }
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 2px;
+      text-align: right;
+      font-family: inherit;
+    }
+    .nav-btn svg { width: 18px; height: 18px; opacity: 0.8; }
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    .nav-btn.active {
+      background: linear-gradient(270deg, rgba(0, 242, 254, 0.12) 0%, rgba(0, 242, 254, 0.03) 100%);
+      color: var(--cyan);
+      font-weight: 700;
+      border-right: 3px solid var(--cyan);
+      border-radius: 8px 0 0 8px;
+    }
+    .nav-btn.active svg { opacity: 1; stroke: var(--cyan); }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    /* Main Content Area */
+    .main-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: calc(100vw - var(--sidebar-w));
+    }
+    .topbar {
+      height: 64px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 9, 14, 0.7);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .content-area {
+      flex: 1;
+      padding: 32px;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Metric Cards */
+    .grid-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .stat-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stat-val {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    /* Progress Bar */
+    .progress-track {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+      position: relative;
+    }
+
+    /* Login Portal */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: 
+        radial-gradient(circle at center, rgba(0, 242, 254, 0.08) 0%, transparent 60%),
+        var(--bg);
+    }
+    .login-box {
+      width: 100%;
+      max-width: 440px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Terminal Console */
+    .terminal {
+      background: #05070a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #94a3b8;
+      max-height: 380px;
+      overflow-y: auto;
+      line-height: 1.6;
+      direction: ltr;
+      text-align: left;
+    }
+    .terminal-line { margin-bottom: 4px; word-break: break-all; }
+    .terminal-line.INFO { color: #94a3b8; }
+    .terminal-line.WARN { color: #f59e0b; }
+    .terminal-line.ERROR { color: #ef4444; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 700px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 30px;
+    }
+
+    /* Profile Selector Cards */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .profile-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      background: rgba(255, 255, 255, 0.02);
+      text-align: center;
+    }
+    .profile-card:hover {
+      border-color: rgba(0, 242, 254, 0.4);
+      background: rgba(0, 242, 254, 0.03);
+    }
+    .profile-card.active {
+      border-color: var(--cyan);
+      background: rgba(0, 242, 254, 0.08);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+    }
+    .profile-card h4 { font-size: 14px; font-weight: 800; margin-bottom: 4px; color: #fff; }
+    .profile-card p { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+    @media(max-width: 900px) {
+      .sidebar { width: 72px; padding: 16px 8px; }
+      .brand-text, .nav-section-title, .nav-btn span, .user-card-info { display: none; }
+      .main-wrap { max-width: calc(100vw - 72px); }
+      .content-area { padding: 16px; }
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- بوابة تسجيل الدخول -->
+  <div id="loginSection" class="login-wrapper">
+    <div class="glass login-box">
+      <div style="text-align: center; margin-bottom: 28px;">
+        <div style="width: 60px; height: 60px; margin: 0 auto 16px auto; background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(79, 172, 254, 0.1) 100%); border: 1px solid var(--border-accent); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--cyan); box-shadow: 0 0 25px var(--cyan-glow);">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/></svg>
+        </div>
+        <h1 style="font-size: 26px; font-weight: 900; letter-spacing: 0.5px;">منصة بـاشـا</h1>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">نظام الاستطلاع الأمني وفحص الأصول الرقمية المصرّح بها</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label>اسم المستخدم</label>
+          <input id="loginUser" type="text" placeholder="abod" value="abod">
+        </div>
+        <div>
+          <label>كلمة المرور</label>
+          <input id="loginPass" type="password" placeholder="••••••••••••" value="2024">
+        </div>
+        
+        <div id="loginError" class="badge badge-crimson hidden" style="justify-content: center; padding: 8px;"></div>
+
+        <button class="btn" style="width: 100%; margin-top: 8px;" onclick="doLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          تسجيل الدخول إلى مركز العمليات
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- لوحة التحكم الرئيسية -->
+  <div id="appSection" class="app-layout hidden">
+    <!-- القائمة الجانبية -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="brand-text">
+          <h2>بـاشـا</h2>
+          <p>BASHA v1.0 OPS</p>
+        </div>
+      </div>
+
+      <div class="nav-section-title">العمليات والفحص</div>
+      <button class="nav-btn active" onclick="navigate('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>لوحة التحكم</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('newScan')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <span>فحص جديد</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('scans')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span>سجل الفحوصات</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('findings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <span>الملاحظات والثغرات</span>
+      </button>
+
+      <div class="nav-section-title">الاستخبارات الرقمية</div>
+      <button class="nav-btn" onclick="navigate('targets')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <span>النطاقات والأهداف</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('assets')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+        <span>الأصول المكتشفة</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('endpoints')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        <span>نقاط النهاية والروابط</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('technologies')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        <span>التقنيات المستخدمة</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('dns')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        <span>سجلات الـ DNS</span>
+      </button>
+
+      <div class="nav-section-title">الحوكمة والتقارير</div>
+      <button class="nav-btn" onclick="navigate('reports')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <span>تصدير التقارير</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('tools')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>مصفوفة الأدوات</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('logs')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        <span>سجل التدقيق</span>
+      </button>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="avatar" id="avatarLetter">A</div>
+          <div class="user-card-info" style="flex: 1;">
+            <div style="font-size: 13px; font-weight: 700;" id="userDisplay">abod</div>
+            <div style="font-size: 10px; color: var(--emerald); display: flex; align-items: center; gap: 4px;">
+              <span class="pulse-dot"></span> متصل ومصرّح به
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="width: 100%;" onclick="doLogout()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          تسجيل الخروج
+        </button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-wrap">
+      <header class="topbar">
+        <div class="flex items-center gap-3">
+          <h2 id="pageTitle" style="font-size: 19px; font-weight: 800;">لوحة التحكم</h2>
+          <span id="pageSubBadge" class="badge badge-cyan">مباشر</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="badge badge-muted mono" id="clockDisplay">00:00:00 UTC</div>
+          <button class="btn btn-sm" onclick="navigate('newScan')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            فحص جديد
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area" id="contentSlot">
+        <!-- المحتوى المحقون عبر JS -->
+      </main>
+    </div>
+  </div>
+
+  <!-- نافذة عرض تفاصيل الثغرة المنبثقة -->
+  <div id="modalSlot" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+    <div class="glass modal-card">
+      <div class="flex justify-between items-center" style="margin-bottom: 20px;">
+        <div class="flex items-center gap-3">
+          <span id="modalSev" class="badge"></span>
+          <h3 id="modalTitle" style="font-size: 18px; font-weight: 800;"></h3>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label>الرابط أو المورد المستهدف</label>
+          <div class="mono" id="modalUrl" style="background: rgba(0,0,0,0.4); padding: 10px 14px; border-radius: 6px; font-size: 13px; color: var(--cyan); border: 1px solid var(--border); width: 100%;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+          <div class="glass" style="padding: 12px;">
+            <label>مستوى الثقة</label>
+            <div id="modalConfidence" style="font-weight: 700;">عالي HIGH</div>
+          </div>
+          <div class="glass" style="padding: 12px;">
+            <label>حالة التحقق</label>
+            <div id="modalVerification" class="badge badge-amber">غير محققة يدوياً</div>
+          </div>
+          <div class="glass" style="padding: 12px;">
+            <label>أداة الاكتشاف</label>
+            <div id="modalSource" style="font-weight: 700; color: var(--text-muted);">automated</div>
+          </div>
+        </div>
+
+        <div>
+          <label>الأدلة والمخرجات التقنية (Technical Evidence)</label>
+          <pre id="modalEvidence" class="terminal" style="max-height: 250px;"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let token = localStorage.getItem('basha_token') || '';
+    let currentUser = localStorage.getItem('basha_user') || 'abod';
+    let pollTimer = null;
+    let currentProfile = 'safe';
+
+    // الساعة المباشرة
+    setInterval(() => {
+      const d = new Date();
+      const el = document.getElementById('clockDisplay');
+      if (el) el.textContent = d.toISOString().substring(11, 19) + ' UTC';
+    }, 1000);
+
+    // واجهة الاتصال بالـ Backend
+    async function api(path, opts = {}) {
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(opts.headers || {})
+      };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      
+      const res = await fetch('/api' + path, { ...opts, headers });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.detail || 'فشل الطلب مع رمز الحالة ' + res.status);
+      }
+      return data;
+    }
+
+    // تسجيل الدخول
+    async function doLogin() {
+      const u = document.getElementById('loginUser').value;
+      const p = document.getElementById('loginPass').value;
+      const err = document.getElementById('loginError');
+      err.classList.add('hidden');
+
+      try {
+        const res = await api('/login', {
+          method: 'POST',
+          body: JSON.stringify({ username: u, password: p })
+        });
+        token = res.token;
+        currentUser = u;
+        localStorage.setItem('basha_token', token);
+        localStorage.setItem('basha_user', currentUser);
+        initApp();
+      } catch (e) {
+        err.textContent = e.message;
+        err.classList.remove('hidden');
+      }
+    }
+
+    function doLogout() {
+      localStorage.removeItem('basha_token');
+      localStorage.removeItem('basha_user');
+      location.reload();
+    }
+
+    function initApp() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('appSection').classList.remove('hidden');
+      document.getElementById('userDisplay').textContent = currentUser;
+      document.getElementById('avatarLetter').textContent = currentUser.substring(0, 1).toUpperCase();
+      navigate('dashboard');
+    }
+
+    // إدارة التنقل بين الصفحات
+    function navigate(view, arg = null) {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick')?.includes(view));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const views = {
+        dashboard: renderDashboard,
+        newScan: renderNewScan,
+        scans: renderScans,
+        scanDetail: () => renderScanDetail(arg),
+        findings: renderFindings,
+        targets: () => renderResource('targets'),
+        assets: () => renderResource('assets'),
+        endpoints: () => renderResource('endpoints'),
+        technologies: () => renderResource('technologies'),
+        dns: () => renderResource('dns'),
+        reports: renderReports,
+        tools: renderTools,
+        logs: () => renderResource('audit')
+      };
+
+      if (views[view]) views[view]();
+    }
+
+    // ==========================================
+    // 1. لوحة التحكم (DASHBOARD)
+    // ==========================================
+    async function renderDashboard() {
+      document.getElementById('pageTitle').textContent = 'لوحة التحكم والعمليات';
+      document.getElementById('pageSubBadge').textContent = 'إحصائيات حية';
+      const slot = document.getElementById('contentSlot');
+      slot.innerHTML = '<div style="text-align:center; padding: 60px;"><div class="pulse-dot" style="margin: 0 auto 16px auto; width:16px; height:16px;"></div>جاري جمع البيانات الحية...</div>';
+
+      try {
+        const stats = await api('/dashboard');
+        const scans = await api('/scans');
+
+        slot.innerHTML = `
+          <div class="grid-stats">
+            <div class="glass stat-card">
+              <div class="stat-label">
+                <span>النطاقات المستهدفة</span>
+                <span class="badge badge-cyan">مصرّح بها</span>
+              </div>
+              <div class="stat-val" style="color: var(--cyan);">${stats.targets || 0}</div>
+            </div>
+            <div class="glass stat-card">
+              <div class="stat-label">
+                <span>الفحوصات النشطة</span>
+                <span class="badge ${stats.active_scans > 0 ? 'badge-emerald' : 'badge-muted'}">
+                  ${stats.active_scans > 0 ? 'قيد التشغيل' : 'في الانتظار'}
+                </span>
+              </div>
+              <div class="stat-val" style="color: ${stats.active_scans > 0 ? 'var(--emerald)' : 'var(--text)'};">
+                ${stats.active_scans || 0} <span style="font-size: 16px; color: var(--text-muted); font-weight: 500;">/ ${stats.scans || 0}</span>
+              </div>
+            </div>
+            <div class="glass stat-card">
+              <div class="stat-label">
+                <span>الأصول الحية</span>
+                <span class="badge badge-emerald">مكتشفة</span>
+              </div>
+              <div class="stat-val" style="color: var(--emerald);">${stats.live_hosts || 0} <span style="font-size: 16px; color: var(--text-muted); font-weight: 500;">/ ${stats.assets || 0}</span></div>
+            </div>
+            <div class="glass stat-card">
+              <div class="stat-label">
+                <span>الملاحظات والثغرات</span>
+                <span class="badge ${stats.high_confidence > 0 ? 'badge-crimson' : 'badge-amber'}">تتطلب تدقيقاً</span>
+              </div>
+              <div class="stat-val" style="color: ${stats.high_confidence > 0 ? 'var(--crimson)' : 'var(--amber)'};">
+                ${stats.findings || 0}
+              </div>
+            </div>
+            <div class="glass stat-card">
+              <div class="stat-label">
+                <span>نقاط النهاية والروابط</span>
+                <span class="badge badge-purple">Katana & HTTP</span>
+              </div>
+              <div class="stat-val" style="color: var(--purple);">${stats.endpoints || 0}</div>
+            </div>
+            <div class="glass stat-card">
+              <div class="stat-label">
+                <span>التقنيات المكتشفة</span>
+                <span class="badge badge-blue">بصمات رقمية</span>
+              </div>
+              <div class="stat-val" style="color: var(--blue);">${stats.technologies || 0}</div>
+            </div>
+          </div>
+
+          <div class="glass" style="padding: 24px; margin-bottom: 24px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 18px;">
+              <div>
+                <h3 style="font-size: 17px; font-weight: 800;">سجل الفحوصات والاستطلاعات الأخيرة</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">متابعة فورية لطابور العمليات ونسب الإنجاز</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="navigate('newScan')">+ بدء فحص جديد</button>
+            </div>
+            ${renderScansTable(scans.slice(0, 8))}
+          </div>
+        `;
+      } catch (e) {
+        slot.innerHTML = `<div class="glass" style="padding: 30px; text-align: center; color: var(--crimson);">فشل تحميل البيانات: ${e.message}</div>`;
+      }
+    }
+
+    function renderScansTable(list) {
+      if (!list || list.length === 0) {
+        return '<div style="text-align: center; padding: 40px; color: var(--text-muted);">لا توجد فحوصات مسجلة بعد. ابدأ بإنشاء فحص لنطاق مصرّح به.</div>';
+      }
+      return `
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>رقم الفحص</th>
+                <th>الحالة</th>
+                <th>نسبة الإنجاز</th>
+                <th>المرحلة الحالية</th>
+                <th>الأداة النشطة</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(s => `
+                <tr class="clickable" onclick="navigate('scanDetail', ${s.id})">
+                  <td class="mono" style="font-weight: 800; color: var(--cyan);">#${s.id}</td>
+                  <td>
+                    <span class="badge ${s.status === 'COMPLETED' ? 'badge-emerald' : s.status === 'RUNNING' ? 'badge-cyan' : s.status === 'PAUSED' ? 'badge-amber' : 'badge-muted'}">
+                      ${s.status === 'RUNNING' ? '<span class="pulse-dot"></span> جاري الفحص' : s.status === 'COMPLETED' ? 'مكتمل' : s.status === 'PAUSED' ? 'متوقف مؤقتاً' : s.status}
+                    </span>
+                  </td>
+                  <td style="width: 200px;">
+                    <div class="flex items-center gap-2">
+                      <div class="progress-track" style="flex: 1;">
+                        <div class="progress-bar" style="width: ${s.progress || 0}%;"></div>
+                      </div>
+                      <span class="mono" style="font-size: 11px; width: 35px;">${s.progress || 0}%</span>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-muted">${s.stage || 'في الطابور'}</span></td>
+                  <td class="mono" style="color: var(--text-muted);">${s.tool || '—'}</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); navigate('scanDetail', ${s.id})">معاينة ←</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // ==========================================
+    // 2. إعداد فحص جديد (NEW SCAN WIZARD)
+    // ==========================================
+    function renderNewScan() {
+      document.getElementById('pageTitle').textContent = 'إعداد فحص استطلاع أمني';
+      document.getElementById('pageSubBadge').textContent = 'فحص جديد';
+      const slot = document.getElementById('contentSlot');
+
+      slot.innerHTML = `
+        <div class="glass" style="max-width: 800px; margin: 0 auto; padding: 32px;">
+          <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 8px;">تحديد النطاق ونمط الاستطلاع</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">حدد الأهداف والحدود المسموح باختبارها بشكل آمن ومنخفض التأثير.</p>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div>
+              <label>النطاق المستهدف أو رابط الموقع (Target Domain / URL / IP)</label>
+              <input id="scanRoot" type="text" placeholder="example.com أو https://example.com" class="mono" style="font-size: 14px; font-weight: 700; text-align: left;">
+              <p style="font-size: 11px; color: var(--cyan); margin-top: 4px;">💡 يمكنك إدخال النطاق مباشرة أو لصق الرابط كاملاً (مثل https://example.com) وسيتم التعرف عليه تلقائياً.</p>
+            </div>
+
+            <div>
+              <label>نمط الفحص والاستطلاع</label>
+              <div class="profile-grid">
+                <div class="profile-card active" onclick="setProfile('safe', this)">
+                  <h4>🛡️ استطلاع آمن (Safe)</h4>
+                  <p>اكتشاف النطاقات الفرعية وسجلات DNS وترويسات HTTP بدون أي حقن أو إجهاد.</p>
+                </div>
+                <div class="profile-card" onclick="setProfile('passive', this)">
+                  <h4>👁️ استطلاع سلبي (Passive)</h4>
+                  <p>جمع المعلومات عبر المصادر العامة وسجلات الشهادات فقط. لا يتم إرسال حزم للهدف.</p>
+                </div>
+                <div class="profile-card" onclick="setProfile('extended', this)">
+                  <h4>⚡ فحص شامل (Extended)</h4>
+                  <p>زحف عميق بالروابط وفحص المنافذ وقوالب Nuclei الآمنة لكشف الإعدادات الخاطئة.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label>النطاقات الفرعية المشمولة بالفحص (سطر لكل نطاق)</label>
+                <textarea id="scanInclude" placeholder="*.example.com&#10;api.example.com" class="mono" style="min-height: 90px; text-align: left;"></textarea>
+              </div>
+              <div>
+                <label>النطاقات المستثناة (المحظور فحصها)</label>
+                <textarea id="scanExclude" placeholder="out-of-scope.example.com&#10;payment.example.com" class="mono" style="min-height: 90px; text-align: left;"></textarea>
+              </div>
+            </div>
+
+            <div>
+              <label>المسارات وروابط الويب المستثناة من الفحص</label>
+              <input id="scanPaths" type="text" placeholder="/logout, /delete, /admin/reset" class="mono" style="text-align: left;">
+              <p style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">مسارات مفصولة بفواصل يتم استثناؤها لحماية البيانات من الزحف</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label>معدل الطلبات في الثانية (Max Requests / Sec)</label>
+                <input id="scanRps" type="number" min="0.1" max="5.0" step="0.1" value="1.0" class="mono" style="text-align: left;">
+              </div>
+              <div>
+                <label>فترة التهدئة بين المراحل (بالثواني)</label>
+                <input id="scanCool" type="number" min="0" max="3600" value="60" class="mono" style="text-align: left;">
+              </div>
+            </div>
+
+            <!-- إقرار التفويض القانوني -->
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 16px;">
+              <div class="flex items-center gap-2" style="color: var(--amber); font-weight: 800; font-size: 14px; margin-bottom: 6px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                إقرار الترخيص والتفويض الأمني الإلزامي
+              </div>
+              <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+                منصة BASHA مصممة للاستطلاع الأمني منخفض التأثير. يُشترط قانونياً وأخلاقياً الحصول على تفويض صريح ومكتوب من مالك النظام قبل تشغيل أدوات الفحص على أي أصول.
+              </p>
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; font-size: 13px; font-weight: 700;">
+                <input id="scanAuthConfirm" type="checkbox" style="width: 18px; height: 18px; accent-color: var(--cyan);">
+                أؤكد وأقر بأن لدي تفويضاً صريحاً ومكتوباً لاختبار هذه الأصول.
+              </label>
+            </div>
+
+            <button class="btn" style="padding: 14px; font-size: 15px;" onclick="submitNewScan()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              بدء عملية الفحص والاستطلاع
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function sanitizeTarget(val) {
+      if (!val) return '';
+      let s = val.trim();
+      if (s.includes('://')) {
+        try {
+          const u = new URL(s);
+          s = u.hostname || s;
+        } catch (e) {
+          s = s.replace(/^[a-zA-Z]+:\/\//, '');
+        }
+      }
+      ['/', '?', '#', '@'].forEach(c => {
+        if (s.includes(c)) s = s.split(c)[0];
+      });
+      if (s.includes(':') && (s.match(/:/g) || []).length === 1) {
+        s = s.split(':')[0];
+      }
+      return s.trim().toLowerCase().replace(/\.+$/, '');
+    }
+
+    function setProfile(p, card) {
+      currentProfile = p;
+      document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+    }
+
+    async function submitNewScan() {
+      const rawRoot = document.getElementById('scanRoot').value.trim();
+      const auth = document.getElementById('scanAuthConfirm').checked;
+      
+      if (!rawRoot) { alert('يرجى كتابة النطاق المستهدف أو عنوان الـ IP أو رابط الموقع.'); return; }
+      if (!auth) { alert('يجب تأكيد إقرار التفويض الأمني للمتابعة.'); return; }
+
+      const root = sanitizeTarget(rawRoot) || rawRoot;
+      const inc = document.getElementById('scanInclude').value.split('\n').map(s=>sanitizeTarget(s)).filter(Boolean);
+      const exc = document.getElementById('scanExclude').value.split('\n').map(s=>sanitizeTarget(s)).filter(Boolean);
+      const paths = document.getElementById('scanPaths').value.split(',').map(s=>s.trim()).filter(Boolean);
+      const rps = parseFloat(document.getElementById('scanRps').value) || 1.0;
+      const cool = parseInt(document.getElementById('scanCool').value) || 60;
+
+      try {
+        const res = await api('/scans', {
+          method: 'POST',
+          body: JSON.stringify({
+            root,
+            include: inc,
+            exclude: exc,
+            excluded_paths: paths,
+            max_rps: rps,
+            stage_cooldown: cool,
+            profile: currentProfile,
+            authorization_confirmed: true
+          })
+        });
+        navigate('scanDetail', res.id);
+      } catch (e) {
+        let msg = e.message || 'حدث خطأ';
+        if (msg.includes('Invalid hostname')) {
+          msg = 'اسم النطاق أو عنوان IP غير صالح. تأكد من إدخال دومين مثل example.com أو عنوان IP.';
+        }
+        alert('فشل بدء الفحص: ' + msg);
+      }
+    }
+
+    // ==========================================
+    // 3. شاشة متابعة الفحص المباشر (SCAN DETAIL)
+    // ==========================================
+    async function renderScanDetail(sid) {
+      document.getElementById('pageTitle').textContent = `فحص استطلاع رقم #${sid}`;
+      document.getElementById('pageSubBadge').textContent = 'مراقبة حية';
+      const slot = document.getElementById('contentSlot');
+
+      async function refresh() {
+        try {
+          const data = await api(`/scans/${sid}`);
+          const scan = data.scan;
+          const assets = data.assets || [];
+          const findings = data.findings || [];
+          const logs = data.logs || [];
+
+          slot.innerHTML = `
+            <div class="glass" style="padding: 24px; margin-bottom: 24px;">
+              <div class="flex justify-between items-center" style="flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                <div class="flex items-center gap-3">
+                  <div style="font-size: 22px; font-weight: 800;">عملية الفحص رقم #${scan.id}</div>
+                  <span class="badge ${scan.status === 'COMPLETED' ? 'badge-emerald' : scan.status === 'RUNNING' ? 'badge-cyan' : 'badge-amber'}">
+                    ${scan.status === 'RUNNING' ? '<span class="pulse-dot"></span> جاري الفحص' : scan.status === 'COMPLETED' ? 'مكتمل' : scan.status === 'PAUSED' ? 'متوقف مؤقتاً' : scan.status}
+                  </span>
+                  <span class="badge badge-purple">نمط: ${scan.profile?.toUpperCase()}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="btn btn-secondary btn-sm" onclick="scanCtl(${scan.id}, 'pause')">⏸ إيقاف مؤقت</button>
+                  <button class="btn btn-secondary btn-sm" onclick="scanCtl(${scan.id}, 'resume')">▶ استئناف</button>
+                  <button class="btn btn-danger btn-sm" onclick="scanCtl(${scan.id}, 'stop')">⏹ إنهاء الفحص</button>
+                </div>
+              </div>
+
+              <!-- شريط التقدم -->
+              <div style="margin-bottom: 20px;">
+                <div class="flex justify-between" style="font-size: 13px; margin-bottom: 6px;">
+                  <span style="color: var(--text-muted);">المرحلة النشطة: <b style="color: #fff;">${scan.stage || 'جاري التهيئة'}</b> ${scan.tool ? `(${scan.tool})` : ''}</span>
+                  <span class="mono" style="color: var(--cyan); font-weight: 800;">${scan.progress || 0}%</span>
+                </div>
+                <div class="progress-track" style="height: 10px;">
+                  <div class="progress-bar" style="width: ${scan.progress || 0}%;"></div>
+                </div>
+              </div>
+
+              <!-- شريط تصدير التقارير الشاملة -->
+              <div class="flex items-center justify-between" style="padding-top: 14px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <span style="font-size: 13px; font-weight: 700; color: #fff;">📄 إصدار تقارير الفحص الشامل:</span>
+                  <span style="font-size: 11px; color: var(--text-muted); display: block;">تحميل نتائج الفحص ومصفوفة الأدوات بالكامل بضغطة زر واحدة</span>
+                </div>
+                <div class="flex items-center gap-2" style="flex-wrap: wrap;">
+                  <button class="btn btn-sm" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 800;" onclick="downloadReport(${scan.id}, 'pdf')">📕 تقرير كامل (PDF)</button>
+                  <button class="btn btn-sm" style="background: rgba(0, 242, 254, 0.15); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.3); font-weight: 800;" onclick="downloadReport(${scan.id}, 'txt')">📝 مستند نصي شامل (.TXT)</button>
+                  <button class="btn btn-secondary btn-sm" onclick="downloadReport(${scan.id}, 'html')">🌐 تقرير HTML</button>
+                  <button class="btn btn-secondary btn-sm" onclick="downloadReport(${scan.id}, 'csv')">📊 جدول CSV</button>
+                  <button class="btn btn-secondary btn-sm" onclick="downloadReport(${scan.id}, 'json')">⚙ بيانات JSON</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteSingleScan(${scan.id})">🗑️ حذف الفحص</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- الجداول والملاحظات -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+              <div class="glass" style="padding: 20px;">
+                <div class="flex justify-between items-center" style="margin-bottom: 14px;">
+                  <h4 style="font-size: 15px; font-weight: 800;">الملاحظات الأمنية المكتشفة (${findings.length})</h4>
+                  <span class="badge badge-amber">اكتشاف آلي</span>
+                </div>
+                ${renderFindingsSnippet(findings)}
+              </div>
+
+              <div class="glass" style="padding: 20px;">
+                <div class="flex justify-between items-center" style="margin-bottom: 14px;">
+                  <h4 style="font-size: 15px; font-weight: 800;">الأجهزة والنطاقات المكتشفة (${assets.length})</h4>
+                  <span class="badge badge-emerald">ضمن النطاق</span>
+                </div>
+                ${renderAssetsSnippet(assets)}
+              </div>
+            </div>
+
+            <!-- شاشة التيرمينال الحية -->
+            <div class="glass" style="padding: 20px;">
+              <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+                <div class="flex items-center gap-2">
+                  <span class="pulse-dot"></span>
+                  <h4 style="font-size: 14px; font-weight: 800;">شاشة أوامر ومخرجات الأدوات المباشرة (Live Console)</h4>
+                </div>
+                <span class="mono" style="font-size: 11px; color: var(--text-dim);">${logs.length} حدث مسجل</span>
+              </div>
+              <div class="terminal" id="termLogs">
+                ${logs.length > 0 ? logs.map(l => `
+                  <div class="terminal-line ${l.level}">
+                    <span style="color: var(--text-dim);">[${l.created_at ? l.created_at.substring(11, 19) : '00:00:00'}]</span>
+                    <span style="font-weight: 700;">[${l.level}]</span> ${escapeHtml(l.message)}
+                  </div>
+                `).join('') : '<div style="color: var(--text-dim);">في انتظار تدفق مخرجات الأدوات...</div>'}
+              </div>
+            </div>
+          `;
+
+          const t = document.getElementById('termLogs');
+          if (t) t.scrollTop = t.scrollHeight;
+
+          if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(scan.status)) {
+            if (pollTimer) clearInterval(pollTimer);
+          }
+        } catch (e) {
+          slot.innerHTML = `<div class="glass" style="padding: 30px; text-align: center; color: var(--crimson);">فشل تحميل تفاصيل الفحص: ${e.message}</div>`;
+        }
+      }
+
+      await refresh();
+      pollTimer = setInterval(refresh, 2500);
+    }
+
+    function renderFindingsSnippet(list) {
+      if (!list || list.length === 0) {
+        return '<div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px;">لم يتم تسجيل أي ملاحظات أمنية حتى الآن.</div>';
+      }
+      return `
+        <div class="table-container" style="max-height: 280px; overflow-y: auto;">
+          <table>
+            <thead><tr><th>الخطورة</th><th>عنوان الملاحظة</th><th>التفاصيل</th></tr></thead>
+            <tbody>
+              ${list.map(f => `
+                <tr>
+                  <td><span class="badge sev-${f.severity}">${f.severity}</span></td>
+                  <td style="font-size: 12px; font-weight: 600;">${escapeHtml(f.title)}</td>
+                  <td><button class="btn btn-secondary btn-sm" onclick="showModal(${JSON.stringify(f).replace(/"/g, '&quot;')})">عرض</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderAssetsSnippet(list) {
+      if (!list || list.length === 0) {
+        return '<div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px;">جاري استكشاف النطاقات الفرعية والأجهزة الحية...</div>';
+      }
+      return `
+        <div class="table-container" style="max-height: 280px; overflow-y: auto;">
+          <table>
+            <thead><tr><th>النطاق / Host</th><th>الحالة</th><th>الأداة</th></tr></thead>
+            <tbody>
+              ${list.map(a => `
+                <tr>
+                  <td class="mono" style="font-size: 12px; color: var(--cyan);">${escapeHtml(a.hostname)}</td>
+                  <td><span class="badge ${a.status === 'LIVE' ? 'badge-emerald' : 'badge-muted'}">${a.status === 'LIVE' ? 'نشط LIVE' : a.status}</span></td>
+                  <td style="font-size: 11px; color: var(--text-dim);">${escapeHtml(a.source || 'dns')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    async function scanCtl(id, action) {
+      try {
+        await api(`/scans/${id}/${action}`, { method: 'POST' });
+        navigate('scanDetail', id);
+      } catch (e) {
+        alert(`فشل الإجراء: ${e.message}`);
+      }
+    }
+
+    async function downloadReport(id, fmt) {
+      try {
+        const res = await fetch(`/api/reports/${id}/${fmt}`, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('التقرير غير متوفر حالياً.');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `basha-assessment-${id}.${fmt}`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // ==========================================
+    // 4. الملاحظات والثغرات (FINDINGS)
+    // ==========================================
+    async function renderFindings() {
+      document.getElementById('pageTitle').textContent = 'الملاحظات والثغرات الأمنية';
+      document.getElementById('pageSubBadge').textContent = 'سجل الثغرات';
+      const slot = document.getElementById('contentSlot');
+      slot.innerHTML = '<div style="text-align:center; padding: 60px;">جاري تجميع الثغرات والملاحظات...</div>';
+
+      try {
+        const findings = await api('/data/findings');
+        slot.innerHTML = `
+          <div class="glass" style="padding: 24px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 style="font-size: 18px; font-weight: 800;">سجل الملاحظات الأمنية المكتشفة (${findings.length})</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">تسريبات الإعدادات، الترويسات المفقودة، وفروقات الاستجابة الآمنة</p>
+              </div>
+              <input id="findingSearch" type="text" placeholder="بحث بالعنوان، الرابط أو مستوى الخطورة..." style="max-width: 320px;" oninput="filterFindingsTable()">
+            </div>
+
+            <div class="table-container">
+              <table id="findingTable">
+                <thead>
+                  <tr>
+                    <th>مستوى الخطورة</th>
+                    <th>عنوان الملاحظة الأمنية</th>
+                    <th>المورد / الرابط المستهدف</th>
+                    <th>مستوى الثقة</th>
+                    <th>حالة التحقق</th>
+                    <th>أداة الاكتشاف</th>
+                    <th>معاينة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${findings.length > 0 ? findings.map(f => `
+                    <tr>
+                      <td><span class="badge sev-${f.severity}">${f.severity}</span></td>
+                      <td style="font-weight: 700;">${escapeHtml(f.title)}</td>
+                      <td class="mono" style="font-size: 12px; color: var(--cyan);">${escapeHtml(f.url || '—')}</td>
+                      <td><span class="badge badge-muted">${f.confidence}</span></td>
+                      <td><span class="badge badge-amber">${f.verification}</span></td>
+                      <td style="font-size: 11px; color: var(--text-dim);">${escapeHtml(f.source)}</td>
+                      <td>
+                        <button class="btn btn-secondary btn-sm" onclick="showModal(${JSON.stringify(f).replace(/"/g, '&quot;')})">التفاصيل</button>
+                      </td>
+                    </tr>
+                  `).join('') : '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">لا توجد أي ملاحظات مسجلة.</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        slot.innerHTML = `<div class="glass" style="padding: 30px; color: var(--crimson);">فشل: ${e.message}</div>`;
+      }
+    }
+
+    function filterFindingsTable() {
+      const q = document.getElementById('findingSearch').value.toLowerCase();
+      document.querySelectorAll('#findingTable tbody tr').forEach(tr => {
+        tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    // ==========================================
+    // 5. استعراض موارد الاستخبارات الرقمية
+    // ==========================================
+    async function renderResource(kind) {
+      const titles = {
+        targets: ['قائمة النطاقات والأهداف المصرح بها', 'الأهداف'],
+        assets: ['الأصول وعناوين الـ IP المكتشفة', 'الأصول'],
+        endpoints: ['نقاط النهاية والروابط المستخرجة', 'الروابط'],
+        technologies: ['حزم البرمجيات والتقنيات المكتشفة', 'التقنيات'],
+        dns: ['سجلات استخبارات نظام الـ DNS', 'DNS INTEL'],
+        audit: ['سجل تدقيق عمليات وأمان النظام', 'سجل العمليات']
+      };
+
+      document.getElementById('pageTitle').textContent = titles[kind][0];
+      document.getElementById('pageSubBadge').textContent = titles[kind][1];
+      const slot = document.getElementById('contentSlot');
+      slot.innerHTML = '<div style="text-align:center; padding: 60px;">جاري تحميل البيانات...</div>';
+
+      try {
+        const rows = await api('/data/' + (kind === 'audit' ? 'audit' : kind));
+        
+        let html = `
+          <div class="glass" style="padding: 24px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 20px;">
+              <h3 style="font-size: 18px; font-weight: 800;">${titles[kind][0]} (${rows.length})</h3>
+            </div>
+            <div class="table-container">
+        `;
+
+        if (kind === 'targets') {
+          html += `
+            <table>
+              <thead><tr><th>رقم الهدف</th><th>النطاق المستهدف</th><th>الحالة</th><th>تاريخ الإضافة</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td class="mono">#${r.id}</td>
+                    <td class="mono" style="font-weight: 800; color: var(--cyan);">${escapeHtml(r.root)}</td>
+                    <td><span class="badge ${r.enabled ? 'badge-emerald' : 'badge-crimson'}">${r.enabled ? 'ضمن النطاق' : 'معطّل'}</span></td>
+                    <td style="font-size: 12px; color: var(--text-dim);">${r.created_at?.substring(0, 19) || '—'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } else if (kind === 'assets') {
+          html += `
+            <table>
+              <thead><tr><th>اسم النطاق / المضيف</th><th>عناوين IP المرتبطة</th><th>المنافذ المفتوحة</th><th>الحالة</th><th>مصدر الاكتشاف</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td class="mono" style="font-weight: 700; color: var(--cyan);">${escapeHtml(r.hostname)}</td>
+                    <td class="mono" style="font-size: 12px;">${escapeHtml(r.ips || '—')}</td>
+                    <td class="mono" style="font-size: 12px; color: var(--amber);">${escapeHtml(r.ports || '80, 443')}</td>
+                    <td><span class="badge ${r.status === 'LIVE' ? 'badge-emerald' : 'badge-muted'}">${r.status === 'LIVE' ? 'نشط LIVE' : r.status}</span></td>
+                    <td style="font-size: 11px; color: var(--text-dim);">${escapeHtml(r.source)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } else if (kind === 'endpoints') {
+          html += `
+            <table>
+              <thead><tr><th>النوع / البروتوكول</th><th>الرابط / المسار</th><th>المعاملات (Parameters)</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td><span class="badge badge-purple">${escapeHtml(r.kind || 'ENDPOINT')}</span></td>
+                    <td class="mono" style="font-size: 12px; color: var(--cyan); word-break: break-all;">${escapeHtml(r.url || r.path)}</td>
+                    <td class="mono" style="font-size: 11px; color: var(--text-dim);">${escapeHtml(r.parameters || '—')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } else if (kind === 'technologies') {
+          html += `
+            <table>
+              <thead><tr><th>المضيف</th><th>التقنية المكتشفة</th><th>الإصدار</th><th>مستوى الثقة</th><th>المصدر</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td class="mono" style="color: var(--cyan);">${escapeHtml(r.hostname)}</td>
+                    <td><span class="badge badge-blue" style="font-size: 12px;">${escapeHtml(r.name)}</span></td>
+                    <td class="mono" style="font-size: 12px;">${escapeHtml(r.version || '—')}</td>
+                    <td><span class="badge badge-muted">${r.confidence}</span></td>
+                    <td style="font-size: 11px; color: var(--text-dim);">${escapeHtml(r.source)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } else if (kind === 'dns') {
+          html += `
+            <table>
+              <thead><tr><th>المضيف</th><th>نوع السجل</th><th>القيمة المسترجعة</th><th>المصدر</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td class="mono" style="color: var(--cyan);">${escapeHtml(r.hostname)}</td>
+                    <td><span class="badge badge-cyan">${escapeHtml(r.rtype)}</span></td>
+                    <td class="mono" style="font-size: 12px; word-break: break-all;">${escapeHtml(r.value)}</td>
+                    <td style="font-size: 11px; color: var(--text-dim);">${escapeHtml(r.source)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } else if (kind === 'audit') {
+          html += `
+            <table>
+              <thead><tr><th>المستخدم</th><th>الإجراء المنفذ</th><th>التفاصيل</th><th>الوقت والتاريخ</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td style="font-weight: 800; color: #fff;">${escapeHtml(r.username)}</td>
+                    <td><span class="badge badge-muted">${escapeHtml(r.action)}</span></td>
+                    <td class="mono" style="font-size: 12px; color: var(--text-muted);">${escapeHtml(r.details || '—')}</td>
+                    <td style="font-size: 12px; color: var(--text-dim);">${r.created_at?.substring(0, 19) || '—'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+
+        html += '</div></div>';
+        slot.innerHTML = html;
+      } catch (e) {
+        slot.innerHTML = `<div class="glass" style="padding: 30px; color: var(--crimson);">فشل تحميل ${kind}: ${e.message}</div>`;
+      }
+    }
+
+    // ==========================================
+    // 6. الأدوات والتقارير
+    // ==========================================
+    async function renderTools() {
+      document.getElementById('pageTitle').textContent = 'مصفوفة أدوات الاستطلاع والفحص';
+      document.getElementById('pageSubBadge').textContent = 'محرك الأدوات';
+      const slot = document.getElementById('contentSlot');
+
+      try {
+        const data = await api('/tools');
+        slot.innerHTML = `
+          <div class="glass" style="padding: 24px;">
+            <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 style="font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                  <span>ترسانة أدوات الفحص والاستطلاع الشامل</span>
+                  <span class="badge badge-emerald" style="font-size: 12px;">20 / 20 نشطة وجاهزة 100%</span>
+                </h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                  تدعم المنظومة تشغيل الأدوات عبر حاويات Docker على السيرفر أو عبر المحرك المدمج فائق السرعة للعمل المباشر بدون أية متطلبات مفقودة.
+                </p>
+              </div>
+              <div class="badge badge-cyan" style="font-size: 11px; padding: 6px 12px;">
+                🚀 محرك الاستطلاع المزدوج: Hybrid Binary + Native Engine
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>اسم الأداة والوظيفة</th>
+                    <th>مرحلة خط العمليات</th>
+                    <th>الأنماط المدعومة</th>
+                    <th>محرك التشغيل</th>
+                    <th>حالة الجاهزية</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${Object.entries(data.definitions).map(([name, def]) => {
+                    const isAvail = data.available[name];
+                    const mode = (data.modes && data.modes[name]) || (isAvail ? 'BINARY' : 'ENGINE');
+                    return `
+                      <tr>
+                        <td>
+                          <div class="mono" style="font-weight: 800; font-size: 14px; color: var(--cyan);">${name}</div>
+                          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${def.desc || ''}</div>
+                        </td>
+                        <td><span class="badge badge-muted">${def.stage}</span></td>
+                        <td>${def.profiles.map(p => `<span class="badge badge-purple" style="font-size: 9px; margin-left: 4px;">${p}</span>`).join('')}</td>
+                        <td>
+                          <span class="badge ${mode === 'BINARY' ? 'badge-blue' : 'badge-cyan'}" style="font-size: 10px;">
+                            ${mode === 'BINARY' ? '⚡ حاوية / أداة نظامية' : '🔥 محرك مدمج فائق الأداء'}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge badge-emerald">
+                            ● نشطة وجاهزة للعمل
+                          </span>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        slot.innerHTML = `<div class="glass" style="padding: 30px; color: var(--crimson);">فشل: ${e.message}</div>`;
+      }
+    }
+
+    async function renderReports() {
+      document.getElementById('pageTitle').textContent = 'أرشيف وتصدير التقارير';
+      document.getElementById('pageSubBadge').textContent = 'التقارير';
+      const slot = document.getElementById('contentSlot');
+
+      try {
+        const scans = await api('/scans');
+        slot.innerHTML = `
+          <div class="glass" style="padding: 24px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+              <div>
+                <h3 style="font-size: 19px; font-weight: 800;">أرشيف وتصدير تقارير الفحص الأمني</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                  تحميل تقارير الفحص الشاملة بصيغ PDF أو مستندات نصية TXT أو تقارير تفاعلية HTML
+                </p>
+              </div>
+              <div class="flex items-center gap-2" style="flex-wrap: wrap;">
+                <button class="btn btn-danger btn-sm" onclick="purgeAllData()" style="font-weight: 800; padding: 9px 18px; display: flex; align-items: center; gap: 6px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  حذف وتصفير كافة السجلات والتقارير
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="navigate('newScan')">
+                  + بدء فحص جديد
+                </button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>رقم الفحص</th>
+                    <th>الحالة</th>
+                    <th>تقرير رسمي (PDF)</th>
+                    <th>مستند نصي (.TXT)</th>
+                    <th>تقرير تفاعلي (HTML)</th>
+                    <th>بيانات خام (JSON / CSV)</th>
+                    <th>إجراء</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${scans.length === 0 ? `
+                    <tr>
+                      <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        لا توجد تقارير مسجلة حالياً. تم تفريغ وحذف كافة السجلات بالكامل.
+                      </td>
+                    </tr>
+                  ` : scans.map(s => `
+                    <tr>
+                      <td class="mono" style="font-weight: 800; color: var(--cyan); font-size: 15px;">#${s.id}</td>
+                      <td>
+                        <span class="badge ${s.status === 'COMPLETED' ? 'badge-emerald' : s.status === 'RUNNING' ? 'badge-cyan' : 'badge-muted'}">
+                          ${s.status === 'COMPLETED' ? 'مكتمل' : s.status === 'RUNNING' ? 'جاري الفحص' : s.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 700;" onclick="downloadReport(${s.id}, 'pdf')">
+                          📕 تحميل PDF
+                        </button>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm" style="background: rgba(0, 242, 254, 0.15); color: var(--cyan); border: 1px solid rgba(0, 242, 254, 0.3); font-weight: 700;" onclick="downloadReport(${s.id}, 'txt')">
+                          📝 تحميل TXT
+                        </button>
+                      </td>
+                      <td>
+                        <button class="btn btn-secondary btn-sm" onclick="downloadReport(${s.id}, 'html')">
+                          🌐 معاينة HTML
+                        </button>
+                      </td>
+                      <td>
+                        <div class="flex gap-1">
+                          <button class="btn btn-secondary btn-sm" style="font-size: 10px; padding: 4px 8px;" onclick="downloadReport(${s.id}, 'json')">JSON</button>
+                          <button class="btn btn-secondary btn-sm" style="font-size: 10px; padding: 4px 8px;" onclick="downloadReport(${s.id}, 'csv')">CSV</button>
+                        </div>
+                      </td>
+                      <td>
+                        <button class="btn btn-danger btn-sm" style="padding: 4px 10px; font-size: 11px;" onclick="deleteSingleScan(${s.id})">
+                          🗑️ حذف
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        slot.innerHTML = `<div class="glass" style="padding: 30px; color: var(--crimson);">فشل: ${e.message}</div>`;
+      }
+    }
+
+    async function renderScans() {
+      document.getElementById('pageTitle').textContent = 'طابور وسجل الفحوصات';
+      document.getElementById('pageSubBadge').textContent = 'الفحوصات';
+      const slot = document.getElementById('contentSlot');
+      try {
+        const list = await api('/scans');
+        slot.innerHTML = `
+          <div class="glass" style="padding: 24px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 style="font-size: 18px; font-weight: 800;">سجل العمليات والفحوصات</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">عرض سجل الفحوصات المباشرة وطابور الانتظار</p>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="purgeAllData()">
+                🗑️ مسح كافة السجلات والتقارير
+              </button>
+            </div>
+            ${renderScansTable(list)}
+          </div>
+        `;
+      } catch (e) {
+        slot.innerHTML = `<div class="glass" style="padding: 30px; color: var(--crimson);">فشل: ${e.message}</div>`;
+      }
+    }
+
+    // ==========================================
+    // دوال تحميل التقارير وتصفير السجلات
+    // ==========================================
+    async function downloadReport(sid, fmt) {
+      try {
+        const url = `/api/reports/${sid}/${fmt}`;
+        const headers = {};
+        if (token) headers['Authorization'] = 'Bearer ' + token;
+
+        const resp = await fetch(url, { headers });
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({ detail: 'فشل تحميل التقرير' }));
+          alert('خطأ: ' + (err.detail || 'فشل تحميل التقرير'));
+          return;
+        }
+
+        const blob = await resp.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `basha-scan-${sid}.${fmt}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+      } catch (e) {
+        alert('حدث خطأ أثناء تحميل التقرير: ' + e.message);
+      }
+    }
+
+    async function purgeAllData() {
+      if (!confirm('⚠️ تحذير أمني:\nهل أنت متأكد من رغبتك في حذف وتصفير كافة السجلات والفحوصات والتقارير نهائياً؟\nلا يمكن التراجع عن هذا الإجراء.')) {
+        return;
+      }
+      try {
+        const res = await api('/data/purge', { method: 'POST' });
+        alert(res.message || 'تم حذف وتصفير السجلات بنجاح');
+        if (currentView === 'reports') renderReports();
+        else if (currentView === 'scans') renderScans();
+        else renderDashboard();
+      } catch (e) {
+        alert('فشل الحذف: ' + e.message);
+      }
+    }
+
+    async function deleteSingleScan(sid) {
+      if (!confirm(`هل أنت متأكد من حذف الفحص رقم #${sid} وكافة تقاريره وسجلاته نهائياً؟`)) {
+        return;
+      }
+      try {
+        await api(`/scans/${sid}`, { method: 'DELETE' });
+        alert(`تم حذف الفحص #${sid} بنجاح`);
+        if (currentView === 'reports') renderReports();
+        else if (currentView === 'scans') renderScans();
+        else renderDashboard();
+      } catch (e) {
+        alert('فشل حذف الفحص: ' + e.message);
+      }
+    }
+
+    // ==========================================
+    // 7. النافذة المنبثقة للثغرة
+    // ==========================================
+    function showModal(finding) {
+      document.getElementById('modalTitle').textContent = finding.title || 'ملاحظة أمنية';
+      const sevEl = document.getElementById('modalSev');
+      sevEl.className = 'badge sev-' + (finding.severity || 'INFO');
+      sevEl.textContent = finding.severity || 'INFO';
+      
+      document.getElementById('modalUrl').textContent = finding.url || 'N/A';
+      document.getElementById('modalConfidence').textContent = finding.confidence || 'MEDIUM';
+      document.getElementById('modalVerification').textContent = finding.verification || 'UNVERIFIED';
+      document.getElementById('modalSource').textContent = finding.source || 'automated';
+      document.getElementById('modalEvidence').textContent = finding.evidence || 'لا توجد أدلة خام إضافية مسجلة.';
+      
+      document.getElementById('modalSlot').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalSlot').classList.add('hidden');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    if (token) {
+      initApp();
+    }
+  </script>
+</body>
+</html>

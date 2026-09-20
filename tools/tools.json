@@ -1,0 +1,22 @@
+{
+  "whois": {"binary": "whois", "timeout": 60},
+  "dig": {"binary": "dig", "timeout": 60},
+  "dnsx": {"binary": "dnsx", "timeout": 300},
+  "subfinder": {"binary": "subfinder", "timeout": 300},
+  "assetfinder": {"binary": "assetfinder", "timeout": 300},
+  "httpx": {"binary": "httpx", "timeout": 300},
+  "whatweb": {"binary": "whatweb", "timeout": 300},
+  "wafw00f": {"binary": "wafw00f", "timeout": 180},
+  "gau": {"binary": "gau", "timeout": 300},
+  "waybackurls": {"binary": "waybackurls", "timeout": 300},
+  "katana": {"binary": "katana", "timeout": 600},
+  "paramspider": {"binary": "paramspider", "timeout": 300},
+  "ffuf": {"binary": "ffuf", "timeout": 300},
+  "securityheaders": {"binary": "securityheaders", "timeout": 120},
+  "sslscan": {"binary": "sslscan", "timeout": 300},
+  "openssl": {"binary": "openssl", "timeout": 60},
+  "trufflehog": {"binary": "trufflehog", "timeout": 300},
+  "nikto": {"binary": "nikto", "timeout": 600},
+  "nuclei": {"binary": "nuclei", "timeout": 900},
+  "nmap": {"binary": "nmap", "timeout": 600}
+}

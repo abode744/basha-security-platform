@@ -1,0 +1,55 @@
+services:
+ postgres:
+  image: postgres:16-alpine
+  environment:
+   POSTGRES_DB: ${POSTGRES_DB}
+   POSTGRES_USER: ${POSTGRES_USER}
+   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  volumes: [postgres_data:/var/lib/postgresql/data]
+  healthcheck: {test: [CMD-SHELL, 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'], interval: 5s, timeout: 5s, retries: 20}
+  restart: unless-stopped
+ redis:
+  image: redis:7-alpine
+  command: [redis-server, --appendonly, yes]
+  volumes: [redis_data:/data]
+  healthcheck: {test: [CMD, redis-cli, ping], interval: 5s, timeout: 3s, retries: 20}
+  restart: unless-stopped
+ api:
+  build: .
+  command: uvicorn app.main:app --host 0.0.0.0 --port 8080
+  env_file: .env
+  depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_healthy}}
+  ports: ["8080:8080"]
+  volumes: [./reports:/app/reports]
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  restart: unless-stopped
+ beat:
+  build: .
+  command: celery -A app.worker.celery_app beat --loglevel=INFO --pidfile=/tmp/celerybeat.pid
+  env_file: .env
+  depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_healthy}}
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  restart: unless-stopped
+ worker:
+  build: .
+  command: celery -A app.worker.celery_app worker --loglevel=INFO --concurrency=${MAX_WORKERS:-2} --max-tasks-per-child=20
+  env_file: .env
+  depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_healthy}}
+  volumes: [./reports:/app/reports]
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  restart: unless-stopped
+ caddy:
+  image: caddy:2-alpine
+  profiles: [https]
+  ports: ["80:80", "443:443"]
+  volumes: [./Caddyfile:/etc/caddy/Caddyfile:ro, caddy_data:/data, caddy_config:/config]
+  depends_on: [api]
+  restart: unless-stopped
+volumes: {postgres_data: {}, redis_data: {}, caddy_data: {}, caddy_config: {}}

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: basha-security-platform
+    env: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: BASHA_ADMIN_USER
+        value: abod
+      - key: BASHA_ADMIN_PASSWORD
+        value: "2024"
+      - key: BASHA_SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.12.0

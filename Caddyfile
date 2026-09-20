@@ -1,0 +1,3 @@
+basha.example.com {
+ reverse_proxy api:8080
+}

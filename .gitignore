@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables & local secrets
+.env
+.env.local
+
+# Databases & local run artifacts
+*.db
+*.sqlite3
+basha_local.db
+PUBLIC_URL.txt
+
+# Binaries & external executables
+cloudflared.exe
+mingit/
+*.exe
+
+# Testing & caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Uploaded or generated reports
+reports/*
+!reports/.gitkeep
