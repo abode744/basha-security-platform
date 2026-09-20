@@ -506,6 +506,95 @@
     .profile-card h4 { font-size: 14px; font-weight: 800; margin-bottom: 4px; color: #fff; }
     .profile-card p { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 
+    /* WSTG Navigation Tabs & Cards */
+    .wstg-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .wstg-tab-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .wstg-tab-btn:hover {
+      border-color: rgba(0, 242, 254, 0.3);
+      color: var(--text);
+      background: rgba(0, 242, 254, 0.05);
+    }
+    .wstg-tab-btn.active {
+      background: rgba(0, 242, 254, 0.12);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+    }
+    .wstg-card {
+      background: rgba(14, 20, 31, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: var(--transition);
+    }
+    .wstg-card:hover {
+      border-color: rgba(0, 242, 254, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .code-editor-box {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #cbd5e1;
+      direction: ltr;
+      text-align: left;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    .cvss-metric-group {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .cvss-metric-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .cvss-metric-group select {
+      width: 100%;
+      background: #0a0e17;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+    .cvss-metric-group select:focus {
+      border-color: var(--cyan);
+    }
+
     @media(max-width: 900px) {
       .sidebar { width: 72px; padding: 16px 8px; }
       .brand-text, .nav-section-title, .nav-btn span, .user-card-info { display: none; }
@@ -610,6 +699,10 @@
       <button class="nav-btn" onclick="navigate('tools')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         <span>مصفوفة الأدوات</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('wstg')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+        <span>معايير OWASP WSTG</span>
       </button>
       <button class="nav-btn" onclick="navigate('logs')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
@@ -782,6 +875,7 @@
         dns: () => renderResource('dns'),
         reports: renderReports,
         tools: renderTools,
+        wstg: renderWstg,
         logs: () => renderResource('audit')
       };
 
@@ -1526,6 +1620,843 @@
         `;
       } catch (e) {
         slot.innerHTML = `<div class="glass" style="padding: 30px; color: var(--crimson);">فشل: ${e.message}</div>`;
+      }
+    }
+
+    // ==========================================
+    // 6.1 دليل ومعايير OWASP WSTG والتوثيق القياسي
+    // ==========================================
+    let activeWstgTab = 'categories';
+    let wstgSearchQuery = '';
+
+    const WSTG_CATEGORIES = [
+      {
+        id: 'WSTG-INFO',
+        title: 'جمع المعلومات والاستطلاع الأولي',
+        titleEn: 'Information Gathering',
+        tests: [
+          { code: 'WSTG-INFO-01', name: 'استطلاع محركات البحث والأرشفة (Search Engine Recon)' },
+          { code: 'WSTG-INFO-02', name: 'أخذ بصمة خادم الويب وتقنيات الاستضافة (Server Fingerprinting)' },
+          { code: 'WSTG-INFO-03', name: 'فحص ملفات التعريف والتسريب (robots.txt, sitemap, .well-known)' },
+          { code: 'WSTG-INFO-05', name: 'فحص الشيفرة المصدرية للتعليقات والمفاتيح المسربة' },
+          { code: 'WSTG-INFO-08', name: 'تحديد أطر العمل والمكتبات البرمجية المستخدمة' }
+        ],
+        tools: ['Amass', 'Sublist3r', 'Katana', 'Wappalyzer', 'WhatWeb', 'Nikto'],
+        desc: 'المرحلة الأولى في التدقيق الأمني لجمع كافة الأصول الرقمية، النطاقات الفرعية، التقنيات، ونقاط الدخول لتحديد مساحة الهجوم السطحية بدقة.'
+      },
+      {
+        id: 'WSTG-CONF',
+        title: 'إدارة الإعدادات والتكوين ونشر التطبيق',
+        titleEn: 'Configuration & Deployment Management',
+        tests: [
+          { code: 'WSTG-CONF-01', name: 'اختبار تكوين البنية التحتية والمنافذ المفتوحة' },
+          { code: 'WSTG-CONF-04', name: 'مراجعة ملفات النسخ الاحتياطية والملفات القديمة (.bak, .old, .zip)' },
+          { code: 'WSTG-CONF-06', name: 'اختبار دوال وطرق HTTP غير الآمنة (PUT, DELETE, TRACE)' },
+          { code: 'WSTG-CONF-07', name: 'التحقق من ترويسات الأمان (HSTS, CSP, X-Frame-Options)' },
+          { code: 'WSTG-CONF-10', name: 'فحص إمكانية الاستيلاء على النطاقات الفرعية (Subdomain Takeover)' },
+          { code: 'WSTG-CONF-11', name: 'فحص إعدادات التخزين السحابي المسرب (S3 Buckets & Blobs)' }
+        ],
+        tools: ['S3Scanner', 'Subzy', 'CSP Evaluator', 'Nmap', 'Ffuf'],
+        desc: 'التأكد من خلو الخوادم، الترويسات، وحاويات التخزين السحابي من التكوينات الافتراضية الضعيفة أو تسريب النسخ الاحتياطية الحساسة.'
+      },
+      {
+        id: 'WSTG-IDNT',
+        title: 'إدارة الهوية والتحقق من حسابات المستخدمين',
+        titleEn: 'Identity Management Testing',
+        tests: [
+          { code: 'WSTG-IDNT-01', name: 'اختبار تعريفات الأدوار وتداخل الصلاحيات' },
+          { code: 'WSTG-IDNT-02', name: 'اختبار آلية تسجيل المستخدمين الجدد وتأكيد الحسابات' },
+          { code: 'WSTG-IDNT-04', name: 'اختبار تخمين وتعداد أسماء المستخدمين (Account Enumeration)' },
+          { code: 'WSTG-IDNT-05', name: 'اختبار سياسات أسماء المستخدمين والحسابات الإدارية' }
+        ],
+        tools: ['Caido', 'OWASP ZAP', 'Hydra', 'Custom Wordlists'],
+        desc: 'تقييم منهجية إنشاء وإدارة هويات المستخدمين، وضمان عدم إمكانية معرفة الحسابات المسجلة عبر رسائل الخطأ أو استجابات السيرفر.'
+      },
+      {
+        id: 'WSTG-ATHN',
+        title: 'المصادقة وتسجيل الدخول',
+        titleEn: 'Authentication Testing',
+        tests: [
+          { code: 'WSTG-ATHN-01', name: 'نقل بيانات الاعتماد عبر قنوات مشفرة آمنة (TLS)' },
+          { code: 'WSTG-ATHN-02', name: 'فحص بيانات الدخول الافتراضية وغير المغيرة' },
+          { code: 'WSTG-ATHN-03', name: 'اختبار آليات الإغلاق ومقاومة التخمين (Rate Limiting & Lockout)' },
+          { code: 'WSTG-ATHN-04', name: 'اختبار تجاوز مسار المصادقة (Authentication Schema Bypass)' },
+          { code: 'WSTG-ATHN-09', name: 'اختبار أمان آليات استعادة كلمة المرور ورموز التفعيل (OTP)' }
+        ],
+        tools: ['Hydra', 'ZAP', 'Caido', 'Ffuf'],
+        desc: 'التحقق من صلابة أنظمة تسجيل الدخول، والمصادقة متعددة العوامل (MFA/2FA)، ومقاومة هجمات القوة الغاشمة وتجاوز جلسات الدخول.'
+      },
+      {
+        id: 'WSTG-ATHZ',
+        title: 'الصلاحيات والتحكم بالوصول (IDOR & BAC)',
+        titleEn: 'Authorization Testing',
+        tests: [
+          { code: 'WSTG-ATHZ-01', name: 'اختبار مسارات الملفات والاجتياز (Directory Traversal / LFI)' },
+          { code: 'WSTG-ATHZ-02', name: 'اختبار تجاوز مخطط التخويل (Broken Access Control - BAC)' },
+          { code: 'WSTG-ATHZ-03', name: 'اختبار تصعيد الصلاحيات الرأسي والأفقي (Privilege Escalation)' },
+          { code: 'WSTG-ATHZ-04', name: 'اختبار المراجع المباشرة غير الآمنة للكائنات (IDOR / BOLA)' }
+        ],
+        tools: ['Autorize', 'Caido', 'Burp Suite', 'Ffuf'],
+        desc: 'أهم فئات التدقيق الأمني في تطبيقات الويب؛ التحقق من عزل بيانات المستخدمين ومنع وصول مستخدم لبيانات مستخدم آخر بتغيير المعرّفات.'
+      },
+      {
+        id: 'WSTG-SESS',
+        title: 'إدارة الجلسات والرموز الأمنية',
+        titleEn: 'Session Management Testing',
+        tests: [
+          { code: 'WSTG-SESS-02', name: 'فحص خصائص الكوكيز (HttpOnly, Secure, SameSite)' },
+          { code: 'WSTG-SESS-03', name: 'اختبار تثبيت الجلسات (Session Fixation)' },
+          { code: 'WSTG-SESS-05', name: 'اختبار تزوير الطلبات عبر المواقع (CSRF)' },
+          { code: 'WSTG-SESS-07', name: 'اختبار انتهاء صلاحية الجلسة عند الخمول (Session Timeout)' },
+          { code: 'WSTG-SESS-09', name: 'التحقق من توقيع وتشفير رموز JWT ومنع التلاعب' }
+        ],
+        tools: ['JWT-Tool', 'ZAP', 'Caido', 'Nuclei'],
+        desc: 'التأكد من التوليد الآمن لمعرفات الجلسة (Session IDs)، وعدم قابليتها للتنبؤ، وإدارتها السليمة عند تسجيل الخروج، وتشفير رموز JWT.'
+      },
+      {
+        id: 'WSTG-INPV',
+        title: 'التحقق من صحة المدخلات ومعالجتها (Injection)',
+        titleEn: 'Input Validation Testing',
+        tests: [
+          { code: 'WSTG-INPV-01', name: 'اختبار حقن النصوص البرمجية المنعكسة (Reflected XSS)' },
+          { code: 'WSTG-INPV-02', name: 'اختبار حقن النصوص البرمجية المخزنة (Stored XSS)' },
+          { code: 'WSTG-INPV-05', name: 'اختبار حقن أوامر قواعد البيانات (SQL Injection)' },
+          { code: 'WSTG-INPV-11', name: 'اختبار حقن الشيفرات وتنفيذ الأوامر (Command Injection / RCE)' },
+          { code: 'WSTG-INPV-16', name: 'اختبار حقن قوالب السيرفر (Server-Side Template Injection - SSTI)' },
+          { code: 'WSTG-INPV-17', name: 'اختبار تزوير الطلب من جهة الخادم (SSRF)' }
+        ],
+        tools: ['SQLmap', 'XSStrike', 'Nuclei', 'Dalfox', 'Commix', 'Ghauri'],
+        desc: 'فحص كافة معاملات الإدخال، معلمات الاستعلام، والحقول للتأكد من تعقيمها وتشفيرها قبل معالجتها في قواعد البيانات أو الخادم.'
+      },
+      {
+        id: 'WSTG-ERRH',
+        title: 'معالجة الأخطاء والتسريب البرمجي',
+        titleEn: 'Error Handling Testing',
+        tests: [
+          { code: 'WSTG-ERRH-01', name: 'اختبار معالجة استثناءات السيرفر ورموز الحالة (500 Internal Error)' },
+          { code: 'WSTG-ERRH-02', name: 'فحص تسريب مسارات السيرفر والشيفرة عبر Stack Traces' }
+        ],
+        tools: ['Nikto', 'ZAP', 'Nuclei'],
+        desc: 'التأكد من عدم كشف رسائل الخطأ عن معلومات حساسة تخص هيكلية الكود، مسارات الملفات، إصدارات قواعد البيانات، أو بيانات الاتصال.'
+      },
+      {
+        id: 'WSTG-CRYP',
+        title: 'التشفير وقنوات الاتصال الآمنة',
+        titleEn: 'Cryptography Testing',
+        tests: [
+          { code: 'WSTG-CRYP-01', name: 'اختبار خوارزميات وبروتوكولات TLS/SSL الضعيفة' },
+          { code: 'WSTG-CRYP-03', name: 'فحص إرسال البيانات الحساسة عبر اتصالات غير مشفرة (HTTP Plaintext)' },
+          { code: 'WSTG-CRYP-04', name: 'اختبار المفاتيح الصلبة وسوء استخدام دوال التجزئة (MD5, SHA1)' }
+        ],
+        tools: ['testssl.sh', 'SSL Labs', 'TruffleHog', 'Gitleaks'],
+        desc: 'مراجعة طبقات التشفير لنقل البيانات وحفظها، وضمان تفعيل تشفير قوي يمنع اعتراض البيانات أو كسرها.'
+      },
+      {
+        id: 'WSTG-BUSL',
+        title: 'منطق الأعمال والعمليات الحساسة',
+        titleEn: 'Business Logic Testing',
+        tests: [
+          { code: 'WSTG-BUSL-01', name: 'اختبار التحقق من صحة قيم الأعمال (تعديل الأسعار والكميات)' },
+          { code: 'WSTG-BUSL-02', name: 'اختبار التلاعب بالمعاملات الحساسة (Parameter Tampering)' },
+          { code: 'WSTG-BUSL-03', name: 'اختبار تسابق العمليات والتضارب الزمني (Race Conditions)' },
+          { code: 'WSTG-BUSL-04', name: 'اختبار تجاوز خطوات الدفع وسير العمليات (Workflow Bypass)' }
+        ],
+        tools: ['Caido', 'Burp Suite Repeater / Turbo Intruder'],
+        desc: 'فحص الثغرات المنطقية التي لا تكتشفها الماسحات الآلية، مثل الشراء بقيم سالبة، أو استهلاك القسائم عدة مرات بالتوازي.'
+      },
+      {
+        id: 'WSTG-CLNT',
+        title: 'اختبارات المتصفح وجانب العميل',
+        titleEn: 'Client-Side Testing',
+        tests: [
+          { code: 'WSTG-CLNT-01', name: 'اختبار حقن نصوص DOM-Based XSS' },
+          { code: 'WSTG-CLNT-05', name: 'اختبار سياسة مشاركة الموارد وتجاوز الأصل (CORS Misconfiguration)' },
+          { code: 'WSTG-CLNT-07', name: 'اختبار هجمات النقر المخادع (Clickjacking & Framing)' },
+          { code: 'WSTG-CLNT-09', name: 'اختبار قنوات التواصل postMessage بين النوافذ والإطارات' },
+          { code: 'WSTG-CLNT-10', name: 'فحص تخزين البيانات الحساسة في LocalStorage و SessionStorage' }
+        ],
+        tools: ['DOM Invader', 'CSP Evaluator', 'Caido', 'ZAP'],
+        desc: 'فحص كود جافاسكريبت المنفذ داخل المتصفح، وعزل بيئات النوافذ، ومنع سرقة الجلسات عبر تقنيات جانب العميل.'
+      },
+      {
+        id: 'WSTG-APIT',
+        title: 'اختبار واجهات برمجة التطبيقات (API & GraphQL)',
+        titleEn: 'API Testing',
+        tests: [
+          { code: 'WSTG-APIT-01', name: 'استكشاف نقاط النهاية غير الموثقة والقديمة (Zombie & Shadow APIs)' },
+          { code: 'WSTG-APIT-02', name: 'فحص استفسار البنية التلقائي في GraphQL (Introspection Query)' },
+          { code: 'WSTG-APIT-03', name: 'اختبار التعيين الجماعي للبيانات في الكائنات (Mass Assignment)' },
+          { code: 'WSTG-APIT-04', name: 'اختبار صلاحيات الحقول على مستوى الخصائص (BOPLA)' }
+        ],
+        tools: ['Katana', 'Kiterunner', 'GraphQL Voyager', 'Postman', 'Caido'],
+        desc: 'التدقيق المتخصص في واجهات REST و GraphQL المستخدمة في تطبيقات الهاتف وتطبيقات الصفحة الواحدة الحديثة.'
+      }
+    ];
+
+    const REPORT_PRESETS = {
+      idor: {
+        title: '[High] Insecure Direct Object Reference (IDOR) on /api/v1/user/profile reveals other users private information',
+        severity: 'HIGH',
+        wstg: 'WSTG-ATHZ-04',
+        cwe: 'CWE-639: Authorization Bypass Through User-Controlled Key',
+        url: 'https://example.com/api/v1/user/profile?user_id=10842',
+        steps: '1. تسجيل الدخول بحساب الاختبار الأول (المستخدم A) ومعاينة المعرف (User ID: 10842).\n2. إرسال طلب GET إلى /api/v1/user/profile?user_id=10842 واسترجاع البيانات.\n3. تسجيل الدخول بحساب الاختبار الثاني المصرّح به (المستخدم B) ذو المعرف 10843.\n4. باستخدام توكن المستخدم B، إرسال الطلب مع استبدال user_id بـ 10842.\n5. يستجيب الخادم بالرمز HTTP 200 OK متضمناً كامل البيانات الشخصية للمستخدم A دون التحقق من صلاحية الجلسة.',
+        request: 'GET /api/v1/user/profile?user_id=10842 HTTP/1.1\nHost: example.com\nAuthorization: Bearer <TOKEN_OF_USER_B>\nAccept: application/json\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "id": 10842,\n  "email": "userA@example.com",\n  "full_name": "Test User A",\n  "phone": "+966500000000"\n}',
+        impact: 'تتيح هذه الثغرة لأي مستخدم مسجل استخراج البيانات الشخصية والملفات الحساسة لجميع مستخدمي المنصة بصورة غير مقيدة بمجرد تعداد أرقام المعرفات (user_id).',
+        remediation: '1. التحقق من صلاحيات الوصول في طبقة الخادم (Server-Side Authorization Check) ومطابقة معرف الجلسة مع معرف الكائن المطلوب.\n2. عدم الاعتماد على المعرفات الرقمية المتسلسلة واستخدام رموز عشوائية صعبة التخمين (UUID v4).'
+      },
+      ssrf: {
+        title: '[High] Server-Side Request Forgery (SSRF) in webhook integration endpoint /api/webhooks/test',
+        severity: 'HIGH',
+        wstg: 'WSTG-INPV-17',
+        cwe: 'CWE-918: Server-Side Request Forgery (SSRF)',
+        url: 'https://example.com/api/webhooks/test',
+        steps: '1. الانتقال إلى إعدادات Webhooks وإدخال رابط فحص الاتصال.\n2. إدخال رابط خادم Collaborator آمن أو عنوان استرجاع محلي 127.0.0.1:80.\n3. إرسال الطلب POST إلى /api/webhooks/test متضمناً المعامل target_url.\n4. استلام إشعار DNS و HTTP وارد من عنوان الـ IP الداخلي للخادم الفعلي، مما يثبت قيام الخادم بإجراء اتصالات داخلية دون تقييد.',
+        request: 'POST /api/webhooks/test HTTP/1.1\nHost: example.com\nContent-Type: application/json\nAuthorization: Bearer <TEST_TOKEN>\n\n{\n  "target_url": "http://127.0.0.1:8080/internal-status"\n}\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "status": "connected",\n  "response_preview": "Cluster Internal Admin Portal"\n}',
+        impact: 'تسمح هذه الثغرة للمهاجم بالتفاعل مع خدمات الشبكة الداخلية غير المكشوفة للإنترنت، ومسح المنافذ المحلية، والوصول إلى بيانات التعريف السحابية الحساسة (Metadata Services مثل 169.254.169.254).',
+        remediation: '1. التحقق من صحة الروابط المدخلة باستخدام قائمة بيضاء (Allowlist) بالنطاقات المسموح بها حصراً.\n2. حظر استدعاء نطاقات العناوين الخاصة (RFC 1918) مثل 127.0.0.0/8 و 10.0.0.0/8 و 192.168.0.0/16 و 169.254.169.254.\n3. تعطيل تتبع إعادة التوجيه التلقائي (HTTP Redirects).'
+      },
+      xss: {
+        title: '[Medium] Stored Cross-Site Scripting (XSS) in user display nickname field',
+        severity: 'MEDIUM',
+        wstg: 'WSTG-INPV-02',
+        cwe: 'CWE-79: Improper Neutralization of Input During Web Page Generation',
+        url: 'https://example.com/settings/profile',
+        steps: '1. التوجه إلى صفحة تعديل الملف الشخصي المصرّح بها للمختبر.\n2. إدخال الحمولة الإثباتية غير الضارة في حقل الاسم المستعار:\n   "><img src=x onerror=alert(document.domain)>\n3. حفظ التعديلات وزيارة الملف الشخصي العام بحساب آخر.\n4. يظهر مربع التنبيه (Alert Dialog) حاملاً اسم النطاق، مما يثبت تخزين الكود وتنفيذه في المتصفح دون تشفير HTML.',
+        request: 'POST /api/user/update-profile HTTP/1.1\nHost: example.com\nContent-Type: application/json\nAuthorization: Bearer <TOKEN>\n\n{\n  "nickname": "\"><img src=x onerror=alert(document.domain)>"\n}\n\nHTTP/1.1 200 OK\n{"success": true}',
+        impact: 'تخزين الشيفرات البرمجية يسمح بتنفيذ سكربتات ضارة في متصفح أي مستخدم يزور الصفحة المصابة، مما قد يؤدي لسرقة رموز الجلسات أو إجراء عمليات غير مصرح بها نيابة عن الضحية.',
+        remediation: '1. تطبيق الترميز والتشفير الإلزامي للسياق (Context-aware Output Encoding) قبل عرض أي مدخلات في صفحات HTML.\n2. تفعيل سياسة أمان المحتوى الصارمة (Content Security Policy - CSP).\n3. حماية ملفات تعريف الجلسة بسمة HttpOnly.'
+      },
+      sqli: {
+        title: '[Critical] SQL Injection in /api/v1/products search query parameter',
+        severity: 'CRITICAL',
+        wstg: 'WSTG-INPV-05',
+        cwe: 'CWE-89: Improper Neutralization of Special Elements used in an SQL Command',
+        url: 'https://example.com/api/v1/products?search=item',
+        steps: '1. إرسال طلب استعلام عادي وملاحظة وقت الاستجابة الاعتيادي (حوالي 80ms).\n2. إرسال حمولة التأخير الزمني غير الضارة في معامل search:\n   \' OR (SELECT 1 FROM (SELECT(SLEEP(3)))a)-- -\n3. استجاب السيرفر بعد 3.1 ثوانٍ بدقة متناهية مطابقة للأمر الزمني.\n4. تأكيد السلوك بقيمة تأخير 5 ثوانٍ حيث استجاب السيرفر بعد 5.1 ثوانٍ، مما يثبت تفسير المعامل كأمر SQL مباشر.',
+        request: 'GET /api/v1/products?search=test\'+OR+(SELECT+1+FROM+(SELECT(SLEEP(3)))a)--+- HTTP/1.1\nHost: example.com\nAccept: application/json\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n[Response received after 3120ms]',
+        impact: 'تتيح ثغرة SQL Injection قراءة محتويات قاعدة البيانات بالكامل، بما في ذلك بيانات الحسابات وكلمات المرور المشفرة والمفاتيح السرية، وقد تمتد لتعديل البيانات أو تنفيذ أوامر النظام.',
+        remediation: '1. استخدام الاستعلامات المجهزة والمعاملية حصراً (Parameterized Queries / Prepared Statements).\n2. تطبيق مبدأ الصلاحيات الأقل (Least Privilege) لحساب قاعدة البيانات.'
+      },
+      cors: {
+        title: '[Medium] Overly Permissive CORS Policy with Origin Reflection and Credentials Allowed',
+        severity: 'MEDIUM',
+        wstg: 'WSTG-CLNT-05',
+        cwe: 'CWE-942: Permissive Cross-Domain Policy with Untrusted Domains',
+        url: 'https://example.com/api/user/private-data',
+        steps: '1. إرسال طلب HTTP عادي متضمناً ترويسة Origin خارجية من نطاق اختبار عشوائي:\n   Origin: https://attacker-controlled-domain.com\n2. فحص استجابة الخادم وملاحظة الترويسات المسترجعة:\n   Access-Control-Allow-Origin: https://attacker-controlled-domain.com\n   Access-Control-Allow-Credentials: true\n3. يقوم السيرفر بعكس أي نطاق مرسل في ترويسة Origin مع السماح بنقل ملفات الاعتماد (Cookies).',
+        request: 'GET /api/user/private-data HTTP/1.1\nHost: example.com\nOrigin: https://test-eval.com\nCookie: session=xyz123\n\nHTTP/1.1 200 OK\nAccess-Control-Allow-Origin: https://test-eval.com\nAccess-Control-Allow-Credentials: true\nContent-Type: application/json\n\n{"account_balance": 5400, "private_notes": "Confidential"}',
+        impact: 'تمكّن هذه الإعدادات الخاطئة المواقع الخارجية الخبيثة من استخراج البيانات الحساسة للضحية بمجرد زيارته للموقع طالما كان يمتلك جلسة مسجلة على الموقع المستهدف.',
+        remediation: '1. تجنب الاعتماد على عكس ترويسة Origin والسماح فقط بقائمة بيضاء ثابتة ومحددة من النطاقات الموثوقة.\n2. عدم تعيين Access-Control-Allow-Credentials: true إلا مع نطاقات محددة ومحققة قطيعاً.'
+      }
+    };
+
+    async function renderWstg() {
+      document.getElementById('pageTitle').textContent = 'دليل ومعايير OWASP WSTG للتدقيق الأمني';
+      document.getElementById('pageSubBadge').textContent = 'WSTG v4.2 & CVSS';
+      const slot = document.getElementById('contentSlot');
+      slot.innerHTML = getWstgHtml();
+      
+      if (activeWstgTab === 'cvss') {
+        calcCvss();
+      } else if (activeWstgTab === 'generator') {
+        updateReportPreview();
+      }
+    }
+
+    function switchWstgTab(tab) {
+      activeWstgTab = tab;
+      renderWstg();
+    }
+
+    function filterWstgCategories(val) {
+      wstgSearchQuery = (val || '').toLowerCase().trim();
+      const grid = document.getElementById('wstgCardsGrid');
+      if (!grid) return;
+
+      const filtered = WSTG_CATEGORIES.filter(c => {
+        if (!wstgSearchQuery) return true;
+        return c.id.toLowerCase().includes(wstgSearchQuery) ||
+               c.title.toLowerCase().includes(wstgSearchQuery) ||
+               c.titleEn.toLowerCase().includes(wstgSearchQuery) ||
+               c.desc.toLowerCase().includes(wstgSearchQuery) ||
+               c.tools.some(t => t.toLowerCase().includes(wstgSearchQuery)) ||
+               c.tests.some(t => t.code.toLowerCase().includes(wstgSearchQuery) || t.name.toLowerCase().includes(wstgSearchQuery));
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">لا توجد فئات مطابقة للبحث "${escapeHtml(val)}"</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(renderWstgCard).join('');
+    }
+
+    function renderWstgCard(c) {
+      return `
+        <div class="wstg-card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px;">
+            <div>
+              <span class="badge badge-cyan mono" style="font-size: 11px; margin-bottom: 6px;">${c.id}</span>
+              <h4 style="font-size: 15px; font-weight: 800; color: #fff;">${escapeHtml(c.title)}</h4>
+              <div style="font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; direction: ltr; text-align: right;">${escapeHtml(c.titleEn)}</div>
+            </div>
+          </div>
+          
+          <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">${escapeHtml(c.desc)}</p>
+
+          <div style="margin-bottom: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px;">أبرز حالات الاختبار المعيارية:</div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              ${c.tests.map(t => `
+                <div style="font-size: 11px; display: flex; align-items: flex-start; gap: 6px; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.03);">
+                  <span class="mono" style="color: var(--cyan); font-weight: 700; font-size: 10px;">${t.code}</span>
+                  <span style="color: var(--text-muted);">${escapeHtml(t.name)}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px;">الأدوات الموصى بها في المنصة:</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+              ${c.tools.map(tool => `<span class="badge badge-purple" style="font-size: 10px;">${escapeHtml(tool)}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getWstgTabBody() {
+      if (activeWstgTab === 'categories') {
+        const filtered = WSTG_CATEGORIES.filter(c => {
+          if (!wstgSearchQuery) return true;
+          return c.id.toLowerCase().includes(wstgSearchQuery) ||
+                 c.title.toLowerCase().includes(wstgSearchQuery) ||
+                 c.titleEn.toLowerCase().includes(wstgSearchQuery) ||
+                 c.tools.some(t => t.toLowerCase().includes(wstgSearchQuery));
+        });
+
+        return `
+          <div>
+            <div style="margin-bottom: 20px; display: flex; gap: 12px; align-items: center;">
+              <input 
+                id="wstgSearch" 
+                type="text" 
+                placeholder="ابحث في فئات WSTG أو أسماء الثغرات أو الأدوات المرتبطة (مثل: IDOR, SQLi, XSS, S3, Caido)..." 
+                value="${escapeHtml(wstgSearchQuery)}" 
+                oninput="filterWstgCategories(this.value)"
+                style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px;"
+              >
+            </div>
+
+            <div id="wstgCardsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px;">
+              ${filtered.map(renderWstgCard).join('')}
+            </div>
+          </div>
+        `;
+      } else if (activeWstgTab === 'standards') {
+        return `
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- الركائز الأربع -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div class="glass" style="padding: 20px; border-left: 3px solid var(--cyan);">
+                <div style="font-size: 24px; margin-bottom: 8px;">🛡️</div>
+                <h4 style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px;">1. قاعدة الأدلة غير الضارة (Benign PoC)</h4>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                  يمنع منعاً باتاً تنفيذ أوامر تخريبية أو حذف بيانات حقيقية أو استخراج جداول عملاء كاملة. الدليل القياسي يثبت وجود الثغرة بأقل أثر (مثل: استدعاء <code class="mono" style="color:var(--cyan)">alert(document.domain)</code> في XSS، أو استرجاع سجل الحساب التجريبي الثاني للمختبر في IDOR، أو تأخير زمني <code class="mono" style="color:var(--cyan)">sleep(2)</code> في SQLi).
+                </p>
+              </div>
+
+              <div class="glass" style="padding: 20px; border-left: 3px solid var(--emerald);">
+                <div style="font-size: 24px; margin-bottom: 8px;">📋</div>
+                <h4 style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px;">2. قابلية إعادة الإنتاج القطعية (Reproducibility)</h4>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                  يجب صياغة خطوات واضحة ومرقمة خطوة بخطوة (1, 2, 3) تتيح لفريق الأمان لدى الجهة المستهدفة التحقق من الملاحظة خلال أقل من 3 دقائق دون تخمين أو غموض في المعطيات.
+                </p>
+              </div>
+
+              <div class="glass" style="padding: 20px; border-left: 3px solid var(--amber);">
+                <div style="font-size: 24px; margin-bottom: 8px;">🌐</div>
+                <h4 style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px;">3. حركة مرور HTTP الخام (Raw Traffic)</h4>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                  توثيق طلب HTTP الصريح كاملاً (الطريقة، المسار، الترويسات، وجسم الطلب) مقروناً برمز واستجابة الخادم التي تثبت الخلل. هذا هو الإثبات الأقوى في كافة برامج المكافآت وعمليات التدقيق.
+                </p>
+              </div>
+
+              <div class="glass" style="padding: 20px; border-left: 3px solid var(--purple);">
+                <div style="font-size: 24px; margin-bottom: 8px;">⚙️</div>
+                <h4 style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px;">4. الأثر الواقعي وخطة الترقيع (Impact & Fix)</h4>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                  التركيز على الأثر العملي الواقعي على بيانات ومستخدمي النظام دون تهويل، وتزويد المطورين بالإرشادات والشيفرات البرمجية الآمنة لسد الثغرة جذرياً.
+                </p>
+              </div>
+            </div>
+
+            <!-- المقارنة بين التقارير المقبولة والمرفوضة -->
+            <div class="glass" style="padding: 22px;">
+              <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 14px;">مصفوفة المقارنة: التقرير الاحترافي القياسي مقابل التقارير المرفوضة</h4>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 25%;">عنصر التقييم</th>
+                      <th style="width: 37%; color: var(--emerald);">الممارسة القياسية الاحترافية (مقبول فوراً)</th>
+                      <th style="width: 38%; color: var(--crimson);">الممارسة السيئة (مرفوض / غير قابل للتحقق)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight: 700;">عنوان الثغرة</td>
+                      <td>[Severity] Vulnerability in [Endpoint] via [Param]</td>
+                      <td>Found big bug / Website hacked</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700;">طبيعة إثبات المفهوم</td>
+                      <td>دليل غير ضار يثبت المفهوم قطيعاً دون تعديل أو إتلاف بيانات</td>
+                      <td>محاولة استخراج قاعدة بيانات كاملة أو تعطيل السيرفر DoS</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700;">خطوات إعادة الإنتاج</td>
+                      <td>تسلسل مرقم محدد بدقة مع حسابات تجريبية مخصصة للاختبار</td>
+                      <td>"اضغط على الرابط وشاهد النتيجة" أو شرح غامض غير واضح</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700;">سجل الحركة والطلبات</td>
+                      <td>طلب واستجابة HTTP الخام مع تحديد المعامل المتأثر بوضوح</td>
+                      <td>لقطة شاشة عامة لصفحة الويب دون أي تفاصيل تقنية</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700;">تحليل الأثر</td>
+                      <td>أثر تشغيلي واقعي يستند إلى ضوابط السرية، النزاهة، والتوافر</td>
+                      <td>تهويل خيالي يدعي السيطرة الكاملة على السيرفر دون دليل تقني</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (activeWstgTab === 'generator') {
+        return `
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- أزرار القوالب الجاهزة السريعة -->
+            <div class="glass" style="padding: 16px;">
+              <div style="font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 10px;">نماذج وقوالب جاهزة وفق المعايير القياسية (اختر للتحميل الفوري في النموذج):</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button class="btn btn-secondary btn-sm" onclick="loadReportTemplate('idor')">
+                  🔴 تجاوز الصلاحيات (IDOR / BOLA)
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="loadReportTemplate('ssrf')">
+                  🟠 تزوير طلب السيرفر (SSRF)
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="loadReportTemplate('xss')">
+                  🟡 حقن نصوص مخزنة (Stored XSS)
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="loadReportTemplate('sqli')">
+                  🔵 حقن استعلامات (SQL Injection)
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="loadReportTemplate('cors')">
+                  🟣 سياسة مشاركة الموارد (CORS Misconfig)
+                </button>
+              </div>
+            </div>
+
+            <!-- شبكة النموذج والمعاينة -->
+            <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px;">
+              <!-- عمود الإدخال -->
+              <div class="glass" style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+                <h4 style="font-size: 15px; font-weight: 800;">بيانات تقرير الثغرة والملاحظة</h4>
+                
+                <div>
+                  <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">عنوان التقرير المعياري (Title)</label>
+                  <input id="rep_title" type="text" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px;" oninput="updateReportPreview()">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">مستوى الخطورة</label>
+                    <select id="rep_sev" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px;" onchange="updateReportPreview()">
+                      <option value="CRITICAL">CRITICAL (حرج)</option>
+                      <option value="HIGH" selected>HIGH (عالٍ)</option>
+                      <option value="MEDIUM">MEDIUM (متوسط)</option>
+                      <option value="LOW">LOW (منخفض)</option>
+                      <option value="INFO">INFO (معلوماتي)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">رمز فئة OWASP WSTG</label>
+                    <input id="rep_wstg" type="text" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px;" oninput="updateReportPreview()">
+                  </div>
+                </div>
+
+                <div>
+                  <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">مرجع CWE المشترك</label>
+                  <input id="rep_cwe" type="text" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px;" oninput="updateReportPreview()">
+                </div>
+
+                <div>
+                  <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">الرابط / نقطة النهاية والمعامل المصاب</label>
+                  <input id="rep_url" type="text" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px; direction: ltr;" oninput="updateReportPreview()">
+                </div>
+
+                <div>
+                  <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">خطوات إعادة الإنتاج المحددة (Reproduction Steps)</label>
+                  <textarea id="rep_steps" rows="4" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px; resize: vertical;" oninput="updateReportPreview()"></textarea>
+                </div>
+
+                <div>
+                  <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">طلب واستجابة HTTP الخام (Raw Request / Response)</label>
+                  <textarea id="rep_request" rows="4" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #cbd5e1; padding: 8px 10px; border-radius: 6px; font-size: 11px; font-family: 'JetBrains Mono', monospace; direction: ltr; resize: vertical;" oninput="updateReportPreview()"></textarea>
+                </div>
+
+                <div>
+                  <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">الأثر الأمني والمخاطر التشغيلية (Impact)</label>
+                  <textarea id="rep_impact" rows="3" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px; resize: vertical;" oninput="updateReportPreview()"></textarea>
+                </div>
+
+                <div>
+                  <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">خطة الترقيع والمعالجة الهندسية (Remediation)</label>
+                  <textarea id="rep_remediation" rows="3" style="width: 100%; background: #0a0e17; border: 1px solid var(--border); color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 12px; resize: vertical;" oninput="updateReportPreview()"></textarea>
+                </div>
+              </div>
+
+              <!-- عمود المعاينة المباشرة والنسخ -->
+              <div class="glass" style="padding: 20px; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <h4 style="font-size: 15px; font-weight: 800;">معاينة المستند القياسي المنسق</h4>
+                  <button class="btn btn-sm" onclick="copyReportToClipboard()">
+                    📋 نسخ التقرير المنسق
+                  </button>
+                </div>
+                <div id="copyNotice" class="badge badge-emerald hidden" style="margin-bottom: 10px; justify-content: center; padding: 6px;">
+                  ✓ تم نسخ التقرير المنسق بنجاح إلى الحافظة!
+                </div>
+                <div id="reportMarkdownPreview" class="code-editor-box" style="flex: 1; min-height: 480px;"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (activeWstgTab === 'cvss') {
+        return `
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- بطاقة النتيجة الحية -->
+            <div class="glass" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; background: linear-gradient(135deg, rgba(14,20,31,0.9) 0%, rgba(10,16,28,0.9) 100%);">
+              <div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">الدرجة المعيارية المحسوبة لنظام تقييم الثغرات المشترك (CVSS v3.1)</div>
+                <div style="display: flex; align-items: baseline; gap: 14px;">
+                  <div id="cvssScoreDisplay" style="font-size: 44px; font-weight: 900; font-family: 'JetBrains Mono', monospace; color: var(--cyan);">9.8</div>
+                  <span id="cvssBadgeDisplay" class="badge badge-crimson" style="font-size: 14px; padding: 6px 14px;">CRITICAL (9.8)</span>
+                </div>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; max-width: 480px; width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <span style="font-size: 11px; font-weight: 700; color: var(--text-dim);">CVSS:3.1 Vector String</span>
+                  <button class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 10px;" onclick="navigator.clipboard.writeText(document.getElementById('cvssVectorDisplay').textContent); alert('تم نسخ رمز المتجه بنجاح');">نسخ المتجه</button>
+                </div>
+                <div id="cvssVectorDisplay" class="mono" style="font-size: 12px; color: var(--cyan); word-break: break-all;">
+                  CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+                </div>
+              </div>
+            </div>
+
+            <!-- شبكة معايير CVSS الأساسية (Base Metrics) -->
+            <div class="glass" style="padding: 24px;">
+              <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">المعايير الأساسية لتقييم الثغرة (CVSS Base Metrics)</h4>
+              
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                <div class="cvss-metric-group">
+                  <label>مسار الهجوم (Attack Vector - AV)</label>
+                  <select id="cvss_av" onchange="calcCvss()">
+                    <option value="0.85" selected>شبكة خارجية (Network - N)</option>
+                    <option value="0.62">شبكة مجاورة (Adjacent - A)</option>
+                    <option value="0.55">محلي عبر النظام (Local - L)</option>
+                    <option value="0.2">وصول مادي فعلي (Physical - P)</option>
+                  </select>
+                </div>
+
+                <div class="cvss-metric-group">
+                  <label>تعقيد الهجوم (Attack Complexity - AC)</label>
+                  <select id="cvss_ac" onchange="calcCvss()">
+                    <option value="0.77" selected>منخفض / مباشر (Low - L)</option>
+                    <option value="0.44">عالٍ / يتطلب شروطاً خاصة (High - H)</option>
+                  </select>
+                </div>
+
+                <div class="cvss-metric-group">
+                  <label>الصلاحيات المطلوبة (Privileges Required - PR)</label>
+                  <select id="cvss_pr" onchange="calcCvss()">
+                    <option value="N" selected>بدون صلاحيات / مجهول (None - N)</option>
+                    <option value="L">مستخدم عادي / صلاحيات دنيا (Low - L)</option>
+                    <option value="H">مسؤول / صلاحيات إدارية (High - H)</option>
+                  </select>
+                </div>
+
+                <div class="cvss-metric-group">
+                  <label>تفاعل المستخدم (User Interaction - UI)</label>
+                  <select id="cvss_ui" onchange="calcCvss()">
+                    <option value="0.85" selected>لا يتطلب تفاعلاً (None - N)</option>
+                    <option value="0.62">يتطلب نقرة أو تفاعل الضحية (Required - R)</option>
+                  </select>
+                </div>
+
+                <div class="cvss-metric-group">
+                  <label>نطاق التأثير (Scope - S)</label>
+                  <select id="cvss_s" onchange="calcCvss()">
+                    <option value="U" selected>ثابت ضمن التطبيق (Unchanged - U)</option>
+                    <option value="C">متغير / يمتد لمكونات أخرى (Changed - C)</option>
+                  </select>
+                </div>
+
+                <div class="cvss-metric-group">
+                  <label>أثر السرية (Confidentiality Impact - C)</label>
+                  <select id="cvss_c" onchange="calcCvss()">
+                    <option value="0.56" selected>عالٍ / كشف بيانات حرجة (High - H)</option>
+                    <option value="0.22">منخفض / كشف بيانات محدودة (Low - L)</option>
+                    <option value="0">معدوم (None - N)</option>
+                  </select>
+                </div>
+
+                <div class="cvss-metric-group">
+                  <label>أثر النزاهة والتعديل (Integrity Impact - I)</label>
+                  <select id="cvss_i" onchange="calcCvss()">
+                    <option value="0.56" selected>عالٍ / تعديل بيانات حساسة (High - H)</option>
+                    <option value="0.22">منخفض / تعديل محدود (Low - L)</option>
+                    <option value="0">معدوم (None - N)</option>
+                  </select>
+                </div>
+
+                <div class="cvss-metric-group">
+                  <label>أثر التوافر والخدمة (Availability Impact - A)</label>
+                  <select id="cvss_a" onchange="calcCvss()">
+                    <option value="0.56" selected>عالٍ / انقطاع كامل للخدمة (High - H)</option>
+                    <option value="0.22">منخفض / أداء متراجع جزئياً (Low - L)</option>
+                    <option value="0">معدوم (None - N)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- جدول مرجعية تصنيف الخطورة المعيارية -->
+            <div class="glass" style="padding: 22px;">
+              <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;">مستويات تصنيف الخطورة المعيارية (CVSS v3.1 Severity Tiers)</h4>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>المستوى</th>
+                      <th>نطاق الدرجات</th>
+                      <th>الوصف والمعيار المعتمد</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="badge badge-crimson">CRITICAL</span></td>
+                      <td class="mono" style="font-weight: 800;">9.0 – 10.0</td>
+                      <td style="font-size: 12px; color: var(--text-muted);">ثغرات تمكن من اختراق النظام أو تنفيذ أوامر برمجية (RCE) أو استخراج قاعدة البيانات بالكامل دون الحاجة لأي مصادقة مسبقة.</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-orange">HIGH</span></td>
+                      <td class="mono" style="font-weight: 800;">7.0 – 8.9</td>
+                      <td style="font-size: 12px; color: var(--text-muted);">ثغرات تمكن من كشف بيانات بالغة الحساسية، أو تجاوز صلاحيات الصعود الإداري (IDOR/BAC)، أو الوصول لشبكات داخلية (SSRF).</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-amber">MEDIUM</span></td>
+                      <td class="mono" style="font-weight: 800;">4.0 – 6.9</td>
+                      <td style="font-size: 12px; color: var(--text-muted);">ثغرات تتطلب تفاعلاً من الضحية مثل XSS أو CSRF أو سوء ضبط سياسات النطاقات المشتركة CORS التي تؤثر على مستخدمين محددين.</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-blue">LOW</span></td>
+                      <td class="mono" style="font-weight: 800;">0.1 – 3.9</td>
+                      <td style="font-size: 12px; color: var(--text-muted);">ثغرات ذات أثر سطحي محدود مثل تسريب إصدارات البرمجيات أو غياب ترويسات دفاعية ثانوية لا تؤدي لاختراق مباشر منفردة.</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge badge-muted">INFO</span></td>
+                      <td class="mono" style="font-weight: 800;">0.0</td>
+                      <td style="font-size: 12px; color: var(--text-muted);">ملاحظات استطلاعية أو بصمات رقمية أو توصيات أمنية تنظيمية لتحسين الدفاع بالعمق (Defense-in-Depth).</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function loadReportTemplate(key) {
+      const p = REPORT_PRESETS[key];
+      if (!p) return;
+
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      };
+
+      setVal('rep_title', p.title);
+      setVal('rep_sev', p.severity);
+      setVal('rep_wstg', p.wstg);
+      setVal('rep_cwe', p.cwe);
+      setVal('rep_url', p.url);
+      setVal('rep_steps', p.steps);
+      setVal('rep_request', p.request);
+      setVal('rep_impact', p.impact);
+      setVal('rep_remediation', p.remediation);
+
+      updateReportPreview();
+    }
+
+    function updateReportPreview() {
+      const getVal = (id, def = '') => document.getElementById(id)?.value || def;
+
+      const title = getVal('rep_title', '[High] Vulnerability Title');
+      const sev = getVal('rep_sev', 'HIGH');
+      const wstg = getVal('rep_wstg', 'WSTG-ATHZ-04');
+      const cwe = getVal('rep_cwe', 'CWE-639');
+      const url = getVal('rep_url', 'https://example.com/api/test');
+      const steps = getVal('rep_steps', '1. Go to...\n2. Send request...\n3. Observe result.');
+      const req = getVal('rep_request', 'GET / HTTP/1.1\nHost: example.com');
+      const impact = getVal('rep_impact', 'Detailed real-world security impact...');
+      const rem = getVal('rep_remediation', 'Recommended fix and code changes...');
+
+      const md = `# ${title}
+
+## 1. Vulnerability Summary
+- **Severity**: ${sev}
+- **Methodology Reference**: OWASP ${wstg}
+- **Taxonomy**: ${cwe}
+- **Vulnerable Target / Endpoint**: \`${url}\`
+- **Audit Toolset**: BASHA Security Suite v1.0
+
+---
+
+## 2. Technical Vulnerability Description
+An audit analysis identified an issue complying with **OWASP ${wstg}**. The target endpoint at \`${url}\` fails to sufficiently enforce security boundaries, allowing unauthorized behavior as detailed below.
+
+---
+
+## 3. Step-by-Step Proof of Concept (PoC)
+${steps}
+
+---
+
+## 4. Raw HTTP Traffic Evidence
+\`\`\`http
+${req}
+\`\`\`
+
+---
+
+## 5. Security & Business Impact
+${impact}
+
+---
+
+## 6. Remediation & Fix Guidance
+${rem}
+
+---
+*Report generated in compliance with OWASP Web Security Testing Guide (WSTG v4.2) standard standards via BASHA Platform.*`;
+
+      const previewEl = document.getElementById('reportMarkdownPreview');
+      if (previewEl) {
+        previewEl.textContent = md;
+      }
+    }
+
+    async function copyReportToClipboard() {
+      const previewEl = document.getElementById('reportMarkdownPreview');
+      if (!previewEl) return;
+
+      try {
+        await navigator.clipboard.writeText(previewEl.textContent);
+        const notice = document.getElementById('copyNotice');
+        if (notice) {
+          notice.classList.remove('hidden');
+          setTimeout(() => notice.classList.add('hidden'), 3500);
+        }
+      } catch (e) {
+        alert('حدث خطأ أثناء النسخ: ' + e.message);
+      }
+    }
+
+    function calcCvss() {
+      const av = parseFloat(document.getElementById('cvss_av')?.value || 0.85);
+      const ac = parseFloat(document.getElementById('cvss_ac')?.value || 0.77);
+      const pr_raw = document.getElementById('cvss_pr')?.value || 'N';
+      const ui = parseFloat(document.getElementById('cvss_ui')?.value || 0.85);
+      const s = document.getElementById('cvss_s')?.value || 'U';
+      const c = parseFloat(document.getElementById('cvss_c')?.value || 0.56);
+      const i = parseFloat(document.getElementById('cvss_i')?.value || 0.56);
+      const a = parseFloat(document.getElementById('cvss_a')?.value || 0.56);
+
+      let pr = 0.85;
+      if (s === 'U') {
+        if (pr_raw === 'N') pr = 0.85;
+        else if (pr_raw === 'L') pr = 0.62;
+        else if (pr_raw === 'H') pr = 0.27;
+      } else {
+        if (pr_raw === 'N') pr = 0.85;
+        else if (pr_raw === 'L') pr = 0.68;
+        else if (pr_raw === 'H') pr = 0.50;
+      }
+
+      const iss = 1 - ((1 - c) * (1 - i) * (1 - a));
+      let impact = 0;
+      if (s === 'U') {
+        impact = 6.42 * iss;
+      } else {
+        impact = 7.52 * (iss - 0.029) - 3.25 * Math.pow((iss - 0.02), 15);
+      }
+
+      const exploitability = 8.22 * av * ac * pr * ui;
+      let baseScore = 0;
+
+      if (impact <= 0) {
+        baseScore = 0.0;
+      } else if (s === 'U') {
+        baseScore = Math.min(impact + exploitability, 10.0);
+      } else {
+        baseScore = Math.min(1.08 * (impact + exploitability), 10.0);
+      }
+
+      baseScore = Math.ceil(baseScore * 10) / 10;
+      if (baseScore > 10.0) baseScore = 10.0;
+      if (baseScore < 0.0) baseScore = 0.0;
+
+      let sev = 'NONE';
+      let sevClass = 'badge-muted';
+      if (baseScore === 0.0) {
+        sev = 'INFO'; sevClass = 'badge-muted';
+      } else if (baseScore < 4.0) {
+        sev = 'LOW'; sevClass = 'badge-blue';
+      } else if (baseScore < 7.0) {
+        sev = 'MEDIUM'; sevClass = 'badge-amber';
+      } else if (baseScore < 9.0) {
+        sev = 'HIGH'; sevClass = 'badge-orange';
+      } else {
+        sev = 'CRITICAL'; sevClass = 'badge-crimson';
+      }
+
+      const avStr = { '0.85': 'N', '0.62': 'A', '0.55': 'L', '0.2': 'P' }[String(av)] || 'N';
+      const acStr = { '0.77': 'L', '0.44': 'H' }[String(ac)] || 'L';
+      const uiStr = { '0.85': 'N', '0.62': 'R' }[String(ui)] || 'N';
+      const cStr = { '0.56': 'H', '0.22': 'L', '0': 'N' }[String(c)] || 'N';
+      const iStr = { '0.56': 'H', '0.22': 'L', '0': 'N' }[String(i)] || 'N';
+      const aStr = { '0.56': 'H', '0.22': 'L', '0': 'N' }[String(a)] || 'N';
+
+      const vector = `CVSS:3.1/AV:${avStr}/AC:${acStr}/PR:${pr_raw}/UI:${uiStr}/S:${s}/C:${cStr}/I:${iStr}/A:${aStr}`;
+
+      const scoreEl = document.getElementById('cvssScoreDisplay');
+      const vectorEl = document.getElementById('cvssVectorDisplay');
+      const badgeEl = document.getElementById('cvssBadgeDisplay');
+
+      if (scoreEl) scoreEl.textContent = baseScore.toFixed(1);
+      if (vectorEl) vectorEl.textContent = vector;
+      if (badgeEl) {
+        badgeEl.className = 'badge ' + sevClass;
+        badgeEl.textContent = sev + ' (' + baseScore.toFixed(1) + ')';
       }
     }
 
