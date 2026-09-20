@@ -1,3 +1,13 @@
+---
+title: BASHA Security Platform
+emoji: 🛡️
+colorFrom: blue
+colorTo: cyan
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # BASHA
 
 Self-hosted, authorized security reconnaissance and low-impact assessment dashboard.
