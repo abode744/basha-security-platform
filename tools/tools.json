@@ -1,77 +1,478 @@
 {
-  "whois": {"binary": "whois", "timeout": 60},
-  "dig": {"binary": "dig", "timeout": 60},
-  "dnsx": {"binary": "dnsx", "timeout": 300},
-  "massdns": {"binary": "massdns", "timeout": 300},
-  "dnsrecon": {"binary": "dnsrecon", "timeout": 300},
-  "fierce": {"binary": "fierce", "timeout": 300},
-  "crtsh": {"binary": "crtsh", "timeout": 120},
-  "shodan_osint": {"binary": "shodan", "timeout": 120},
-  "spiderfoot": {"binary": "spiderfoot", "timeout": 300},
-  "theharvester": {"binary": "theHarvester", "timeout": 300},
-  "checkdmarc": {"binary": "checkdmarc", "timeout": 120},
-  "spoofcheck": {"binary": "spoofcheck", "timeout": 120},
-  "subfinder": {"binary": "subfinder", "timeout": 300},
-  "assetfinder": {"binary": "assetfinder", "timeout": 300},
-  "sublist3r": {"binary": "sublist3r", "timeout": 300},
-  "findomain": {"binary": "findomain", "timeout": 300},
-  "altdns": {"binary": "altdns", "timeout": 300},
-  "amass": {"binary": "amass", "timeout": 600},
-  "subzy": {"binary": "subzy", "timeout": 180},
-  "subjack": {"binary": "subjack", "timeout": 180},
-  "anew": {"binary": "anew", "timeout": 120},
-  "httpx": {"binary": "httpx", "timeout": 300},
-  "httprobe": {"binary": "httprobe", "timeout": 180},
-  "whatweb": {"binary": "whatweb", "timeout": 300},
-  "wafw00f": {"binary": "wafw00f", "timeout": 180},
-  "cloud_enum": {"binary": "cloud_enum", "timeout": 240},
-  "prowler": {"binary": "prowler", "timeout": 300},
-  "scoutsuite": {"binary": "scout", "timeout": 300},
-  "gau": {"binary": "gau", "timeout": 300},
-  "waybackurls": {"binary": "waybackurls", "timeout": 300},
-  "uro": {"binary": "uro", "timeout": 180},
-  "unfurl": {"binary": "unfurl", "timeout": 120},
-  "katana": {"binary": "katana", "timeout": 600},
-  "hakrawler": {"binary": "hakrawler", "timeout": 300},
-  "kiterunner": {"binary": "kr", "timeout": 300},
-  "graphql_cop": {"binary": "graphql-cop", "timeout": 180},
-  "arjun": {"binary": "arjun", "timeout": 300},
-  "paramspider": {"binary": "paramspider", "timeout": 300},
-  "qsreplace": {"binary": "qsreplace", "timeout": 120},
-  "kxss": {"binary": "kxss", "timeout": 180},
-  "ffuf": {"binary": "ffuf", "timeout": 300},
-  "gobuster": {"binary": "gobuster", "timeout": 300},
-  "feroxbuster": {"binary": "feroxbuster", "timeout": 300},
-  "dirsearch": {"binary": "dirsearch", "timeout": 400},
-  "bypass403": {"binary": "bypass-403", "timeout": 240},
-  "gitdumper": {"binary": "gitdumper", "timeout": 240},
-  "gitleaks": {"binary": "gitleaks", "timeout": 300},
-  "trufflehog": {"binary": "trufflehog", "timeout": 300},
-  "linkfinder": {"binary": "linkfinder", "timeout": 240},
-  "secretfinder": {"binary": "secretfinder", "timeout": 240},
-  "retirejs": {"binary": "retire", "timeout": 240},
-  "securityheaders": {"binary": "securityheaders", "timeout": 120},
-  "corsy": {"binary": "corsy", "timeout": 180},
-  "wpscan": {"binary": "wpscan", "timeout": 300},
-  "nikto": {"binary": "nikto", "timeout": 600},
-  "sslscan": {"binary": "sslscan", "timeout": 300},
-  "sslyze": {"binary": "sslyze", "timeout": 300},
-  "openssl": {"binary": "openssl", "timeout": 60},
-  "testssl": {"binary": "testssl", "timeout": 300},
-  "sqlmap": {"binary": "sqlmap", "timeout": 600},
-  "ghauri": {"binary": "ghauri", "timeout": 300},
-  "commix": {"binary": "commix", "timeout": 300},
-  "crlfsuite": {"binary": "crlfsuite", "timeout": 180},
-  "dalfox": {"binary": "dalfox", "timeout": 300},
-  "jwt_tool": {"binary": "jwt_tool", "timeout": 180},
-  "smuggler": {"binary": "smuggler", "timeout": 240},
-  "ssrf_detector": {"binary": "ssrf_detector", "timeout": 240},
-  "nuclei": {"binary": "nuclei", "timeout": 900},
-  "cve_auditor": {"binary": "cve_auditor", "timeout": 300},
-  "masscan": {"binary": "masscan", "timeout": 300},
-  "rustscan": {"binary": "rustscan", "timeout": 300},
-  "naabu": {"binary": "naabu", "timeout": 300},
-  "netcat": {"binary": "nc", "timeout": 120},
-  "zmap": {"binary": "zmap", "timeout": 300},
-  "nmap": {"binary": "nmap", "timeout": 600}
+  "burpsuite": {
+    "binary": "burpsuite",
+    "timeout": 300
+  },
+  "zap": {
+    "binary": "zaproxy",
+    "timeout": 300
+  },
+  "caido": {
+    "binary": "caido",
+    "timeout": 300
+  },
+  "mitmproxy": {
+    "binary": "mitmproxy",
+    "timeout": 300
+  },
+  "postman": {
+    "binary": "postman",
+    "timeout": 300
+  },
+  "insomnia": {
+    "binary": "insomnia",
+    "timeout": 300
+  },
+  "whois": {
+    "binary": "whois",
+    "timeout": 60
+  },
+  "crtsh": {
+    "binary": "crtsh",
+    "timeout": 120
+  },
+  "shodan_osint": {
+    "binary": "shodan",
+    "timeout": 120
+  },
+  "censys": {
+    "binary": "censys",
+    "timeout": 300
+  },
+  "securitytrails": {
+    "binary": "securitytrails",
+    "timeout": 300
+  },
+  "spiderfoot": {
+    "binary": "spiderfoot",
+    "timeout": 300
+  },
+  "theharvester": {
+    "binary": "theHarvester",
+    "timeout": 300
+  },
+  "chaos": {
+    "binary": "chaos",
+    "timeout": 300
+  },
+  "dig": {
+    "binary": "dig",
+    "timeout": 60
+  },
+  "dnsx": {
+    "binary": "dnsx",
+    "timeout": 300
+  },
+  "massdns": {
+    "binary": "massdns",
+    "timeout": 300
+  },
+  "puredns": {
+    "binary": "puredns",
+    "timeout": 300
+  },
+  "dnsrecon": {
+    "binary": "dnsrecon",
+    "timeout": 300
+  },
+  "fierce": {
+    "binary": "fierce",
+    "timeout": 300
+  },
+  "dnstwist": {
+    "binary": "dnstwist",
+    "timeout": 300
+  },
+  "checkdmarc": {
+    "binary": "checkdmarc",
+    "timeout": 120
+  },
+  "spoofcheck": {
+    "binary": "spoofcheck",
+    "timeout": 120
+  },
+  "subfinder": {
+    "binary": "subfinder",
+    "timeout": 300
+  },
+  "assetfinder": {
+    "binary": "assetfinder",
+    "timeout": 300
+  },
+  "amass": {
+    "binary": "amass",
+    "timeout": 600
+  },
+  "findomain": {
+    "binary": "findomain",
+    "timeout": 300
+  },
+  "knockpy": {
+    "binary": "knockpy",
+    "timeout": 300
+  },
+  "sublist3r": {
+    "binary": "sublist3r",
+    "timeout": 300
+  },
+  "shuffledns": {
+    "binary": "shuffledns",
+    "timeout": 300
+  },
+  "altdns": {
+    "binary": "altdns",
+    "timeout": 300
+  },
+  "subzy": {
+    "binary": "subzy",
+    "timeout": 300
+  },
+  "subjack": {
+    "binary": "subjack",
+    "timeout": 300
+  },
+  "canitakeoverxyz": {
+    "binary": "canitakeoverxyz",
+    "timeout": 300
+  },
+  "anew": {
+    "binary": "anew",
+    "timeout": 300
+  },
+  "httpx": {
+    "binary": "httpx",
+    "timeout": 300
+  },
+  "httprobe": {
+    "binary": "httprobe",
+    "timeout": 300
+  },
+  "whatweb": {
+    "binary": "whatweb",
+    "timeout": 300
+  },
+  "wappalyzer": {
+    "binary": "wappalyzer",
+    "timeout": 300
+  },
+  "wafw00f": {
+    "binary": "wafw00f",
+    "timeout": 300
+  },
+  "cloud_enum": {
+    "binary": "cloud_enum",
+    "timeout": 300
+  },
+  "s3scanner": {
+    "binary": "s3scanner",
+    "timeout": 300
+  },
+  "prowler": {
+    "binary": "prowler",
+    "timeout": 300
+  },
+  "scoutsuite": {
+    "binary": "scout",
+    "timeout": 300
+  },
+  "katana": {
+    "binary": "katana",
+    "timeout": 300
+  },
+  "gau": {
+    "binary": "gau",
+    "timeout": 300
+  },
+  "waybackurls": {
+    "binary": "waybackurls",
+    "timeout": 300
+  },
+  "hakrawler": {
+    "binary": "hakrawler",
+    "timeout": 300
+  },
+  "gospider": {
+    "binary": "gospider",
+    "timeout": 300
+  },
+  "uro": {
+    "binary": "uro",
+    "timeout": 300
+  },
+  "unfurl": {
+    "binary": "unfurl",
+    "timeout": 120
+  },
+  "ffuf": {
+    "binary": "ffuf",
+    "timeout": 300
+  },
+  "gobuster": {
+    "binary": "gobuster",
+    "timeout": 300
+  },
+  "feroxbuster": {
+    "binary": "feroxbuster",
+    "timeout": 300
+  },
+  "dirsearch": {
+    "binary": "dirsearch",
+    "timeout": 300
+  },
+  "kiterunner": {
+    "binary": "kr",
+    "timeout": 300
+  },
+  "bypass403": {
+    "binary": "bypass-403",
+    "timeout": 300
+  },
+  "arjun": {
+    "binary": "arjun",
+    "timeout": 300
+  },
+  "paramspider": {
+    "binary": "paramspider",
+    "timeout": 300
+  },
+  "x8": {
+    "binary": "x8",
+    "timeout": 300
+  },
+  "qsreplace": {
+    "binary": "qsreplace",
+    "timeout": 120
+  },
+  "kxss": {
+    "binary": "kxss",
+    "timeout": 300
+  },
+  "gitdumper": {
+    "binary": "gitdumper",
+    "timeout": 300
+  },
+  "gitleaks": {
+    "binary": "gitleaks",
+    "timeout": 300
+  },
+  "trufflehog": {
+    "binary": "trufflehog",
+    "timeout": 300
+  },
+  "shhgit": {
+    "binary": "shhgit",
+    "timeout": 300
+  },
+  "wpscan": {
+    "binary": "wpscan",
+    "timeout": 300
+  },
+  "droopescan": {
+    "binary": "droopescan",
+    "timeout": 300
+  },
+  "joomscan": {
+    "binary": "joomscan",
+    "timeout": 300
+  },
+  "aem_hacker": {
+    "binary": "aem_hacker",
+    "timeout": 300
+  },
+  "semgrep": {
+    "binary": "semgrep",
+    "timeout": 300
+  },
+  "bandit": {
+    "binary": "bandit",
+    "timeout": 300
+  },
+  "sonarqube": {
+    "binary": "sonar-scanner",
+    "timeout": 300
+  },
+  "snyk": {
+    "binary": "snyk",
+    "timeout": 300
+  },
+  "dependency_check": {
+    "binary": "dependency-check",
+    "timeout": 300
+  },
+  "linkfinder": {
+    "binary": "linkfinder",
+    "timeout": 300
+  },
+  "secretfinder": {
+    "binary": "secretfinder",
+    "timeout": 300
+  },
+  "retirejs": {
+    "binary": "retire",
+    "timeout": 300
+  },
+  "js_scan": {
+    "binary": "js-scan",
+    "timeout": 300
+  },
+  "jsa": {
+    "binary": "jsa",
+    "timeout": 300
+  },
+  "graphql_cop": {
+    "binary": "graphql-cop",
+    "timeout": 300
+  },
+  "clairvoyance": {
+    "binary": "clairvoyance",
+    "timeout": 300
+  },
+  "graphql_voyager": {
+    "binary": "voyager",
+    "timeout": 300
+  },
+  "astra": {
+    "binary": "astra",
+    "timeout": 300
+  },
+  "restler": {
+    "binary": "restler",
+    "timeout": 300
+  },
+  "jwt_tool": {
+    "binary": "jwt_tool",
+    "timeout": 300
+  },
+  "saml_raider": {
+    "binary": "saml_raider",
+    "timeout": 300
+  },
+  "oauthscan": {
+    "binary": "oauthscan",
+    "timeout": 300
+  },
+  "securityheaders": {
+    "binary": "securityheaders",
+    "timeout": 120
+  },
+  "corsy": {
+    "binary": "corsy",
+    "timeout": 300
+  },
+  "csp_evaluator": {
+    "binary": "csp_evaluator",
+    "timeout": 300
+  },
+  "sslscan": {
+    "binary": "sslscan",
+    "timeout": 300
+  },
+  "sslyze": {
+    "binary": "sslyze",
+    "timeout": 300
+  },
+  "openssl": {
+    "binary": "openssl",
+    "timeout": 60
+  },
+  "testssl": {
+    "binary": "testssl",
+    "timeout": 300
+  },
+  "sqlmap": {
+    "binary": "sqlmap",
+    "timeout": 600
+  },
+  "ghauri": {
+    "binary": "ghauri",
+    "timeout": 300
+  },
+  "nosqlmap": {
+    "binary": "nosqlmap",
+    "timeout": 300
+  },
+  "commix": {
+    "binary": "commix",
+    "timeout": 300
+  },
+  "crlfsuite": {
+    "binary": "crlfsuite",
+    "timeout": 300
+  },
+  "dalfox": {
+    "binary": "dalfox",
+    "timeout": 300
+  },
+  "xsstrike": {
+    "binary": "xsstrike",
+    "timeout": 300
+  },
+  "dompurify_tester": {
+    "binary": "dompurify_test",
+    "timeout": 300
+  },
+  "smuggler": {
+    "binary": "smuggler",
+    "timeout": 300
+  },
+  "ssrf_detector": {
+    "binary": "ssrf_detector",
+    "timeout": 300
+  },
+  "nuclei": {
+    "binary": "nuclei",
+    "timeout": 900
+  },
+  "nikto": {
+    "binary": "nikto",
+    "timeout": 600
+  },
+  "openvas": {
+    "binary": "openvas",
+    "timeout": 300
+  },
+  "nessus": {
+    "binary": "nessus",
+    "timeout": 300
+  },
+  "qualys_was": {
+    "binary": "qualys",
+    "timeout": 300
+  },
+  "cve_auditor": {
+    "binary": "cve_auditor",
+    "timeout": 300
+  },
+  "masscan": {
+    "binary": "masscan",
+    "timeout": 300
+  },
+  "rustscan": {
+    "binary": "rustscan",
+    "timeout": 300
+  },
+  "naabu": {
+    "binary": "naabu",
+    "timeout": 300
+  },
+  "netcat": {
+    "binary": "nc",
+    "timeout": 120
+  },
+  "zmap": {
+    "binary": "zmap",
+    "timeout": 300
+  },
+  "nmap": {
+    "binary": "nmap",
+    "timeout": 600
+  },
+  "notify": {
+    "binary": "notify",
+    "timeout": 300
+  },
+  "interlace": {
+    "binary": "interlace",
+    "timeout": 300
+  }
 }
