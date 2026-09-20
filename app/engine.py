@@ -21,10 +21,12 @@ SECRET_PATTERNS = {
     'GitHub Personal Access Token': re.compile(r'gh[pousr]_[A-Za-z0-9_]{36,255}'),
     'Google API Key': re.compile(r'AIza[0-9A-Za-z-_]{35}'),
     'Slack Bot / Webhook Token': re.compile(r'xox[baprs]-[0-9a-zA-Z]{10,48}'),
+    'Stripe API Key': re.compile(r'sk_(?:live|test)_[0-9a-zA-Z]{24,99}'),
     'RSA / OpenSSH Private Key': re.compile(r'-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'),
     'Generic High-Entropy Secret': re.compile(r'(?:api_key|apikey|secret|password|auth_token)\s*[:=]\s*["\']([a-zA-Z0-9_\-\.]{24,})["\']', re.IGNORECASE),
     'JWT Token': re.compile(r'eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'),
 }
+
 
 # Common sensitive paths for Directory Fuzzing (FFUF engine)
 COMMON_FUZZ_PATHS = [
@@ -221,7 +223,7 @@ def fingerprint_tech(headers: dict, html_text: str, cookies: dict) -> list[tuple
         techs.append(('ASP.NET', 'Web Framework'))
 
     # CMS & Framework signatures
-    if 'wp-content' in text_lower or 'wp-includes' in text_lower:
+    if 'wp-content' in text_lower or 'wp-includes' in text_lower or 'wordpress' in text_lower:
         techs.append(('WordPress', 'Content Management System'))
     if 'next.js' in text_lower or '__next' in text_lower:
         techs.append(('Next.js', 'React Framework'))
@@ -360,7 +362,7 @@ def audit_security_headers(headers: dict, url: str) -> list[dict]:
 
 def audit_tls_ssl(hostname: str, port: int = 443, timeout: int = 6) -> dict:
     """Evaluate SSL/TLS certificate, protocols, and expiry date."""
-    result = {'valid': False, 'findings': [], 'details': {}}
+    result = {'valid': False, 'status': 'UNREACHABLE', 'findings': [], 'details': {}}
     try:
         ctx = ssl.create_default_context()
         with socket.create_connection((hostname, port), timeout=timeout) as sock:
@@ -375,6 +377,7 @@ def audit_tls_ssl(hostname: str, port: int = 443, timeout: int = 6) -> dict:
                 san = [x[1] for x in cert.get('subjectAltName', ()) if x[0] == 'DNS']
 
                 result['valid'] = True
+                result['status'] = 'VALID'
                 result['details'] = {
                     'version': version,
                     'cipher': cipher[0] if cipher else 'Unknown',
@@ -395,6 +398,7 @@ def audit_tls_ssl(hostname: str, port: int = 443, timeout: int = 6) -> dict:
                         'confidence': 'HIGH'
                     })
     except ssl.SSLCertVerificationError as e:
+        result['status'] = 'INVALID_CERT'
         result['findings'].append({
             'title': 'TLS Certificate Validation Error / Self-Signed Certificate',
             'severity': 'MEDIUM',
@@ -404,7 +408,7 @@ def audit_tls_ssl(hostname: str, port: int = 443, timeout: int = 6) -> dict:
             'confidence': 'HIGH'
         })
     except Exception:
-        pass
+        result['status'] = 'UNREACHABLE'
     return result
 
 def scan_secrets_in_text(text: str, url: str) -> list[dict]:
@@ -871,7 +875,7 @@ def audit_jwt_tokens(headers: dict, cookies: dict, body_text: str) -> list[dict]
                 alg = header.get('alg', '').lower()
                 if alg == 'none':
                     findings.append({
-                        'title': 'JWT Insecure Algorithm: "none" Allowed',
+                        'title': 'JWT Insecure None Algorithm Allowed (Signature Bypass)',
                         'severity': 'CRITICAL',
                         'url': 'token_header',
                         'evidence': f"JWT token permits algorithm 'none' allowing arbitrary signature bypass.",
@@ -1000,6 +1004,20 @@ def audit_javascript_security(html_text: str, base_url: str, timeout: int = 5) -
             except Exception:
                 continue
 
+    # Extract secrets & endpoints from inline <script> blocks (SecretFinder & LinkFinder)
+    inline_scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html_text, re.DOTALL | re.IGNORECASE)
+    for inline_code in inline_scripts:
+        inline_secs = scan_secrets_in_text(inline_code, base_url)
+        for sec in inline_secs:
+            sec['source'] = 'secretfinder'
+            secrets.append(sec)
+        ep_pattern = re.compile(r"""(?:['"]|/)([a-zA-Z0-9_\-\./]{2,}\.(?:json|php|html|action|api|v[123])[^'"\s]*)""")
+        for ep in set(ep_pattern.findall(inline_code)):
+            endpoints.append({
+                'url': urljoin(base_url, ep),
+                'source_js': base_url
+            })
+
     return endpoints, secrets, outdated_libs
 
 def test_403_bypass_vectors(restricted_url: str, timeout: int = 5) -> list[dict]:
@@ -1063,18 +1081,26 @@ def audit_email_security_dmarc(domain: str) -> list[dict]:
 def normalize_and_clean_urls(urls: list[str]) -> list[str]:
     """Clean duplicate parameters, strip fragments and filter noise (URO, Unfurl & ANew engine)."""
     cleaned = []
-    seen = set()
+    seen_patterns = set()
+    ignored_exts = ('.png', '.jpg', '.jpeg', '.gif', '.svg', '.css', '.woff', '.woff2', '.ico', '.ttf', '.eot', '.map')
+
     for u in urls:
         parsed = urlparse(u)
-        # Normalize: strip fragments and trailing slashes
-        clean_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+        path_lower = parsed.path.lower()
+        if any(path_lower.endswith(ext) for ext in ignored_exts):
+            continue
+
+        param_keys = []
         if parsed.query:
-            # Sort query parameters to deduplicate
-            params = sorted(parsed.query.split('&'))
-            clean_url += f"?{'&'.join(params)}"
-        if clean_url not in seen:
-            seen.add(clean_url)
-            cleaned.append(clean_url)
+            for p in parsed.query.split('&'):
+                if '=' in p:
+                    param_keys.append(p.split('=', 1)[0])
+                elif p:
+                    param_keys.append(p)
+        pattern = (parsed.scheme, parsed.netloc, parsed.path, tuple(sorted(param_keys)))
+        if pattern not in seen_patterns:
+            seen_patterns.add(pattern)
+            cleaned.append(u)
     return cleaned
 
 
@@ -1152,6 +1178,27 @@ def audit_dns_typosquatting_and_wildcards(domain: str) -> tuple[list[dict], bool
             'source': 'puredns',
             'confidence': 'HIGH'
         })
+
+    # DNSTwist permutation modeling
+    parts = domain.split('.')
+    if len(parts) >= 2:
+        sld = parts[0]
+        tld = '.'.join(parts[1:])
+        typos = []
+        for i in range(len(sld)):
+            typos.append(sld[:i] + sld[i+1:] + '.' + tld)
+        for i in range(len(sld) - 1):
+            typos.append(sld[:i] + sld[i+1] + sld[i] + sld[i+2:] + '.' + tld)
+        for typo in typos[:5]:
+            findings.append({
+                'title': f'Typosquatting Risk: {typo}',
+                'severity': 'INFO',
+                'url': f"dns://{typo}",
+                'evidence': f"DNSTwist identified potential typosquatting / phishing variant: {typo}",
+                'source': 'dnstwist',
+                'confidence': 'MEDIUM'
+            })
+
     return findings, has_wildcard
 
 def audit_subdomain_takeover_can_i_take_over(domain: str, subdomains: list[str]) -> list[dict]:
@@ -1206,10 +1253,15 @@ def audit_wappalyzer_technologies(headers: dict, html_text: str, cookies: dict) 
         techs.append(('React', 'JavaScript Frameworks'))
     if 'vue' in text_lower or 'v-bind' in text_lower:
         techs.append(('Vue.js', 'JavaScript Frameworks'))
-    if 'bootstrap' in text_lower:
-        techs.append(('Bootstrap', 'UI Frameworks'))
-    if 'fontawesome' in text_lower or 'fa-' in text_lower:
-        techs.append(('FontAwesome', 'Icon Fonts'))
+    # Server & Framework Headers
+    powered_by = headers.get('x-powered-by', '').lower()
+    server = headers.get('server', '').lower()
+    if 'express' in powered_by:
+        techs.append(('Express', 'Web Frameworks'))
+    if 'apache' in server:
+        techs.append(('Apache', 'Web Servers'))
+    if 'nginx' in server:
+        techs.append(('Nginx', 'Web Servers'))
 
     return techs
 
@@ -1334,6 +1386,24 @@ def audit_javascript_call_flows(html_text: str, base_url: str) -> list[dict]:
             'source': 'js_scan',
             'confidence': 'MEDIUM'
         })
+    if re.search(r'(?:fetch|axios|\$\.(?:ajax|get|post))\s*\(\s*["\']([^"\']*(?:admin|auth|token|user|secret)[^"\']*)["\']', html_text, re.I):
+        findings.append({
+            'title': 'Privileged API Endpoint Call in Client Script',
+            'severity': 'LOW',
+            'url': base_url,
+            'evidence': "Client-side script initiates direct asynchronous requests to privileged administration or user management endpoints.",
+            'source': 'js_scan',
+            'confidence': 'HIGH'
+        })
+    if re.search(r'(?:innerHTML|document\.write|outerHTML)\s*=', html_text):
+        findings.append({
+            'title': 'Potentially Dangerous DOM Sink in Use',
+            'severity': 'LOW',
+            'url': base_url,
+            'evidence': "Potentially unsafe DOM sink assignment (innerHTML / document.write) detected in script routines.",
+            'source': 'jsa',
+            'confidence': 'MEDIUM'
+        })
     return findings
 
 def audit_graphql_schema_reconstruction(base_url: str, timeout: int = 5) -> list[dict]:
@@ -1447,7 +1517,28 @@ def audit_advanced_xss_and_dompurify(base_url: str, timeout: int = 5) -> list[di
 def audit_enterprise_vulnerability_posture(base_url: str, headers: dict) -> list[dict]:
     """Evaluate enterprise vulnerability posture and insecure HTTP methods (OpenVAS, Nessus, Qualys WAS engine)."""
     findings = []
-    with httpx.Client(timeout=5, verify=False) as client:
+    h_lower = {str(k).lower(): str(v).lower() for k, v in headers.items()}
+    if 'x-debug-mode' in h_lower or 'x-debug' in h_lower:
+        findings.append({
+            'title': 'Enterprise Debug Mode Flag Exposed in Headers',
+            'severity': 'MEDIUM',
+            'url': base_url,
+            'evidence': f"Server response leaked internal debug status: {h_lower.get('x-debug-mode') or h_lower.get('x-debug')}",
+            'source': 'nessus',
+            'confidence': 'HIGH'
+        })
+    server_header = h_lower.get('server', '')
+    if 'apache/2.2' in server_header or 'apache/2.0' in server_header or 'iis/6' in server_header or 'iis/7.0' in server_header:
+        findings.append({
+            'title': f'Legacy / EOL Web Server Detected ({server_header})',
+            'severity': 'HIGH',
+            'url': base_url,
+            'evidence': "Enterprise scan identified end-of-life server software prone to legacy remote code execution and denial of service.",
+            'source': 'qualys_was',
+            'confidence': 'HIGH'
+        })
+
+    with httpx.Client(timeout=3, verify=False) as client:
         try:
             r = client.options(base_url)
             allow_header = r.headers.get('Allow', '')
@@ -1457,7 +1548,7 @@ def audit_enterprise_vulnerability_posture(base_url: str, headers: dict) -> list
                     'severity': 'MEDIUM',
                     'url': base_url,
                     'evidence': f"Server responds to TRACE requests allowing Cross-Site Tracing (XST): Allow: {allow_header}",
-                    'source': 'nessus',
+                    'source': 'openvas',
                     'confidence': 'HIGH'
                 })
         except Exception:

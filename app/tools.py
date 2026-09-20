@@ -12,3 +12,65 @@ def tool_modes():
         k: ('BINARY' if shutil.which(v['binary']) else 'ENGINE')
         for k, v in TOOL_DEFS.items()
     }
+
+TOOL_ALIASES = {
+    'shodan': 'shodan_osint',
+    'can-i-take-over-xyz': 'canitakeoverxyz',
+    'can_i_take_over_xyz': 'canitakeoverxyz',
+    'canitakeover': 'canitakeoverxyz',
+    'git-dumper': 'gitdumper',
+    'git_dumper': 'gitdumper',
+    'testssl.sh': 'testssl',
+    'testssl_sh': 'testssl',
+    'crt.sh': 'crtsh',
+    'crt_sh': 'crtsh',
+    'owasp-zap': 'zap',
+    'owasp_zap': 'zap',
+    'zaproxy': 'zap',
+    'js-scan': 'js_scan',
+    'jsscan': 'js_scan',
+    'dependency-check': 'dependency_check',
+    'dependencycheck': 'dependency_check',
+    'owasp-dependency-check': 'dependency_check',
+    'owasp_dependency_check': 'dependency_check',
+    'qualys': 'qualys_was',
+    'qualys-was': 'qualys_was',
+    'greenbone': 'openvas',
+    'jwt-tool': 'jwt_tool',
+    'jwttool': 'jwt_tool',
+    'saml-raider': 'saml_raider',
+    'samlraider': 'saml_raider',
+    'oauth-scan': 'oauthscan',
+    'oauth_scan': 'oauthscan',
+    'dompurify-tester': 'dompurify_tester',
+    'dompurify': 'dompurify_tester',
+    'dompurify_test': 'dompurify_tester',
+    'aem-hacker': 'aem_hacker',
+    'aemhacker': 'aem_hacker',
+    'graphql-voyager': 'graphql_voyager',
+    'graphqlvoyager': 'graphql_voyager',
+    'graphql-cop': 'graphql_cop',
+    'graphqlcop': 'graphql_cop',
+    'chaos-client': 'chaos',
+    'chaosclient': 'chaos',
+}
+
+def resolve_tool_name(name: str) -> str:
+    """Normalize and resolve any tool identifier or alias to its canonical tool key."""
+    if not name:
+        return ""
+    cleaned = name.strip().lower().replace(" ", "")
+    if cleaned in TOOL_DEFS:
+        return cleaned
+    if cleaned in TOOL_ALIASES:
+        return TOOL_ALIASES[cleaned]
+    underscore_version = cleaned.replace("-", "_").replace(".", "_")
+    if underscore_version in TOOL_DEFS:
+        return underscore_version
+    if underscore_version in TOOL_ALIASES:
+        return TOOL_ALIASES[underscore_version]
+    stripped_version = cleaned.replace("-", "").replace("_", "").replace(".", "")
+    if stripped_version in TOOL_DEFS:
+        return stripped_version
+    return cleaned
+
