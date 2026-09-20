@@ -17,7 +17,7 @@ Self-hosted, authorized security reconnaissance and low-impact assessment dashbo
 - Mandatory authorization confirmation and server-side scope checks
 - Explicit subprocess allowlist and `shell=False`
 - Passive/safe/extended profiles
-- 20 Pinned core recon & security tools: whois, dig, dnsx, subfinder, assetfinder, httpx, whatweb, wafw00f, gau, waybackurls, katana, paramspider, ffuf, securityheaders, sslscan, openssl, trufflehog, nikto, nuclei, nmap
+- 75 Comprehensive recon & security tools: whois, dig, dnsx, massdns, dnsrecon, fierce, crtsh, shodan_osint, spiderfoot, theharvester, checkdmarc, spoofcheck, subfinder, assetfinder, sublist3r, findomain, altdns, amass, subzy, subjack, anew, httpx, httprobe, whatweb, wafw00f, cloud_enum, prowler, scoutsuite, gau, waybackurls, uro, unfurl, katana, hakrawler, kiterunner, graphql_cop, arjun, paramspider, qsreplace, kxss, ffuf, gobuster, feroxbuster, dirsearch, bypass403, gitdumper, gitleaks, trufflehog, linkfinder, secretfinder, retirejs, securityheaders, corsy, wpscan, nikto, sslscan, sslyze, openssl, testssl, sqlmap, ghauri, commix, crlfsuite, dalfox, jwt_tool, smuggler, ssrf_detector, nuclei, cve_auditor, masscan, rustscan, naabu, netcat, zmap, nmap
 - Low request rate and configurable stage cooldown
 - Pause/resume/stop
 - Asset, DNS, HTTP, technology, URL, endpoint and finding storage

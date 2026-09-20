@@ -84,10 +84,10 @@ def write_text(d, sid):
         f"    - Medium Severity (متوسطة)        : {sev_counts['MEDIUM']}",
         f"    - Low Severity (منخفضة)           : {sev_counts['LOW']}",
         f"    - Informational (معلوماتية)       : {sev_counts['INFO']}",
-        f"  * Core Security Tools Executed    : {len(tools)} / 20",
+        f"  * Core Security Tools Executed    : {len(tools)} / 75",
         "",
         "-" * 80,
-        "  [2] TOOLS EXECUTION MATRIX (20/20 TOOLS) / مصفوفة تنفيذ الأدوات",
+        f"  [2] TOOLS EXECUTION MATRIX ({len(tools)}/75 TOOLS) / مصفوفة تنفيذ الأدوات",
         "-" * 80,
     ]
 
@@ -484,7 +484,7 @@ def write_html(d, sid):
       </div>
       <div class="card">
         <div style="font-size: 12px; color: var(--text-muted);">الأدوات المنفذة</div>
-        <div class="stat-val" style="color: var(--emerald);">{len(tools)} / 20</div>
+        <div class="stat-val" style="color: var(--emerald);">{len(tools)} / 75</div>
       </div>
       <div class="card">
         <div style="font-size: 12px; color: var(--text-muted);">نمط الفحص</div>
@@ -509,7 +509,7 @@ def write_html(d, sid):
     </div>
 
     <div class="card">
-      <h3 style="font-size: 16px; margin-bottom: 12px;">أدوات الفحص الـ 20 المنفذة وحالة التشغيل</h3>
+      <h3 style="font-size: 16px; margin-bottom: 12px;">مصفوفة أدوات الفحص المنفذة (75 أداة) وحالة التشغيل</h3>
       <table>
         <thead><tr><th>اسم الأداة</th><th>المرحلة الأمنية</th><th>حالة التنفيذ</th></tr></thead>
         <tbody>{tool_rows or '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">لا توجد سجلات أدوات</td></tr>'}</tbody>
